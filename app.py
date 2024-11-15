@@ -244,6 +244,8 @@ if perfil_pivot != "Selecciona un perfil":
     st.write(df_pivot[["Jugador", "Posición", perfil_pivot]])
 
 
+
+
 # Función para generar una lista visual de los 5 mejores jugadores de la posición seleccionada
 def generar_lista_imagen(df_filtrado, posicion, perfil):
     # Filtramos los jugadores por posición
@@ -253,7 +255,7 @@ def generar_lista_imagen(df_filtrado, posicion, perfil):
     df_filtrado_pos = df_filtrado_pos.sort_values(by=f"Puntuacion {perfil}", ascending=False).head(5)
     
     # Creamos una imagen en blanco para la lista
-    width, height = 600, 250  # Ajusta el tamaño según lo necesites
+    width, height = 300, 250  # Ajusta el tamaño según lo necesites
     image = Image.new("RGB", (width, height), (255, 255, 255))
     draw = ImageDraw.Draw(image)
 
@@ -280,12 +282,31 @@ def generar_lista_imagen(df_filtrado, posicion, perfil):
     img_byte_arr.seek(0)
     
     # Mostrar la imagen en Streamlit
-    st.image(img_byte_arr, caption=f"Los 5 mejores jugadores de {posicion} ({perfil})", use_column_width=True)
+    return img_byte_arr
 
 # Filtros para elegir la posición y el perfil
 posiciones = ["Base", "Escolta", "Alero", "Ala-Pívot", "Pívot"]
-perfil_seleccionado = st.selectbox("Selecciona un perfil", ["Pass-First", "Scorer", "Two-Way"])
-posicion_seleccionada = st.selectbox("Selecciona una posición", posiciones)
+perfiles = ["Pass-First", "Scorer", "Two-Way"]
 
-# Mostrar la lista de los 5 mejores jugadores por posición y perfil
-generar_lista_imagen(df, posicion_seleccionada, perfil_seleccionado)
+# Establecer un perfil por defecto para cada posición
+perfiles_por_defecto = {
+    "Base": "Pass-First",
+    "Escolta": "Scorer",
+    "Alero": "Two-Way",
+    "Ala-Pívot": "Two-Way",
+    "Pívot": "Two-Way"
+}
+
+# Mostrar la tabla de los 5 mejores para todas las posiciones
+st.write("**Quinteto ideal por posición y perfil**")
+
+# Generar y mostrar las imágenes para cada posición
+for posicion in posiciones:
+    perfil = perfiles_por_defecto[posicion]  # Obtener el perfil predeterminado para la posición
+    st.write(f"### {posicion}: {perfil}")
+    
+    # Generar la imagen
+    img_byte_arr = generar_lista_imagen(df, posicion, perfil)
+    
+    # Mostrar la imagen generada para esa posición
+    st.image(img_byte_arr, caption=f"Los 5 mejores jugadores de {posicion} ({perfil})", use_column_width=True)
