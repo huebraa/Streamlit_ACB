@@ -187,6 +187,16 @@ df_filtrado = df[df["Minutos"] >= minutos_minimos]
 st.write("Tabla General de Jugadores:")
 st.write(df_filtrado)
 
+# Calcular las puntuaciones de todos los perfiles para cada jugador
+for posicion, perfiles in perfiles_posiciones.items():
+    for perfil_nombre, perfil in perfiles.items():
+        df_filtrado[perfil_nombre] = df_filtrado.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
+
+# Mostrar tabla con puntuaciones de los perfiles para todos los jugadores
+st.write("Puntuación por perfil para cada jugador:")
+perfil_columnas = [col for col in df_filtrado.columns if col not in ["Jugador", "Posición", "Minutos"]]  # Filtrar columnas de puntuaciones
+st.write(df_filtrado[["Jugador", "Posición"] + perfil_columnas])
+
 # Filtro para ver por posición (en barra lateral)
 posicion_seleccionada = st.sidebar.selectbox("Seleccionar posición", ["Todas las posiciones", "Base (PG)", "Escolta (SG)", "Alero (SF)", "Ala-Pívot (PF)", "Pívot (C)"])
 
@@ -204,8 +214,7 @@ if posicion_seleccionada != "Todas las posiciones" and perfil_seleccionado != "S
     df_filtrado_posicion["Puntuacion"] = df_filtrado_posicion.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
     
     # Mostrar los 5 mejores jugadores según la puntuación
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_seleccionado}' en la posición {posicion_seleccionada}:")
+    st.write(f"Los 5 mejores jugadores para el perfil {perfil_seleccionado} en la posición {posicion_seleccionada}:")
     st.write(df_filtrado_posicion[["Jugador", "Puntuacion"]].sort_values(by="Puntuacion", ascending=False).head(5))
 else:
-    # Mostrar mensaje si no hay perfil o posición seleccionados
     st.write("Selecciona una posición y un perfil para ver los resultados.")
