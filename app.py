@@ -183,19 +183,15 @@ minutos_minimos = st.sidebar.slider(
 # Filtrar los jugadores que tengan al menos el mínimo de minutos seleccionados
 df_filtrado = df[df["Minutos"] >= minutos_minimos]
 
-# Mostrar la tabla general (siempre visible)
-st.write("Tabla General de Jugadores:")
-st.write(df_filtrado)
-
 # Calcular las puntuaciones de todos los perfiles para cada jugador
 for posicion, perfiles in perfiles_posiciones.items():
     for perfil_nombre, perfil in perfiles.items():
         df_filtrado[perfil_nombre] = df_filtrado.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
 
-# Mostrar tabla con puntuaciones de los perfiles para todos los jugadores
-st.write("Puntuación por perfil para cada jugador:")
+# Mostrar la tabla general de puntuaciones de los perfiles (sin filtros de posición ni perfil)
+st.write("Tabla General de Jugadores con sus puntuaciones por perfil:")
 perfil_columnas = [col for col in df_filtrado.columns if col not in ["Jugador", "Posición", "Minutos"]]  # Filtrar columnas de puntuaciones
-st.write(df_filtrado[perfil_columnas])
+st.write(df_filtrado[["Jugador", "Posición"] + perfil_columnas])
 
 # Filtro para ver por posición (en barra lateral)
 posicion_seleccionada = st.sidebar.selectbox("Seleccionar posición", ["Todas las posiciones", "Base (PG)", "Escolta (SG)", "Alero (SF)", "Ala-Pívot (PF)", "Pívot (C)"])
@@ -214,4 +210,7 @@ if posicion_seleccionada != "Todas las posiciones" and perfil_seleccionado != "S
     df_filtrado_posicion["Puntuacion"] = df_filtrado_posicion.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
     
     # Mostrar los 5 mejores jugadores según la puntuación
-    st.write(f"Los 5 mejores jugadores para el perfil {perfil_seleccionado} en la posición {posicion_seleccion
+    st.write(f"Los 5 mejores jugadores para el perfil {perfil_seleccionado} en la posición {posicion_seleccionada}:")
+    st.write(df_filtrado_posicion[["Jugador", "Puntuacion"]].sort_values(by="Puntuacion", ascending=False).head(5))
+else:
+    st.write("Selecciona una posición y un perfil para ver los resultados.")
