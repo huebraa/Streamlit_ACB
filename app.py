@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+from PIL import Image, ImageDraw, ImageFont
+import io
 
 # Función para cargar los datos
 @st.cache
@@ -42,194 +42,103 @@ columnas_espanol = {
 # Renombrar las columnas
 df = df.rename(columns=columnas_espanol)
 
-# Perfiles por posición
-perfiles_posiciones = {
-    "Base (PG)": {
-        "Pass-First PG": {
-            "AST%": 0.30,
-            "PPR": 0.30,
-            "STL%": 0.15,
-            "eFG%": 0.10,
-            "ORtg": 0.10
-        },
-        "Scorer PG": {
-            "PTS": 0.40,
-            "3P%": 0.25,
-            "AST%": 0.10,
-            "STL%": 0.10,
-            "TOV%": 0.15
-        },
-        "Two-Way PG": {
-            "STL%": 0.30,
-            "AST%": 0.20,
-            "DRtg": 0.25,
-            "TRB%": 0.15,
-            "PER": 0.10
-        }
-    },
-    "Escolta (SG)": {
-        "Pass-First SG": {
-            "AST%": 0.35,
-            "PPR": 0.25,
-            "STL%": 0.15,
-            "eFG%": 0.10,
-            "ORtg": 0.15
-        },
-        "Scorer SG": {
-            "PTS": 0.40,
-            "3P%": 0.30,
-            "eFG%": 0.15,
-            "STL%": 0.10,
-            "TOV%": 0.05
-        },
-        "Two-Way SG": {
-            "STL%": 0.35,
-            "DRtg": 0.25,
-            "AST%": 0.15,
-            "3P%": 0.10,
-            "TOV%": 0.15
-        }
-    },
-    "Alero (SF)": {
-        "Playmaking SF": {
-            "AST%": 0.30,
-            "PPR": 0.30,
-            "STL%": 0.15,
-            "eFG%": 0.15,
-            "ORtg": 0.10
-        },
-        "Scoring SF": {
-            "PTS": 0.40,
-            "3P%": 0.30,
-            "eFG%": 0.15,
-            "STL%": 0.10,
-            "TOV%": 0.05
-        },
-        "Two-Way SF": {
-            "STL%": 0.35,
-            "DRtg": 0.30,
-            "TRB%": 0.15,
-            "eFG%": 0.10,
-            "TOV%": 0.10
-        }
-    },
-    "Ala-Pívot (PF)": {
-        "Stretch PF": {
-            "3P%": 0.35,
-            "eFG%": 0.30,
-            "PTS": 0.20,
-            "TRB%": 0.10,
-            "TOV%": 0.05
-        },
-        "Post-Play PF": {
-            "TRB%": 0.30,
-            "PTS": 0.25,
-            "BLK%": 0.20,
-            "ORtg": 0.15,
-            "STL%": 0.10
-        },
-        "Two-Way PF": {
-            "STL%": 0.25,
-            "TRB%": 0.25,
-            "DRtg": 0.20,
-            "eFG%": 0.15,
-            "TOV%": 0.15
-        }
-    },
-    "Pívot (C)": {
-        "Defensive C": {
-            "BLK%": 0.40,
-            "DRtg": 0.30,
-            "TRB%": 0.15,
-            "TOV%": 0.10,
-            "STL%": 0.05
-        },
-        "Scoring C": {
-            "PTS": 0.35,
-            "TRB%": 0.25,
-            "FG%": 0.20,
-            "3P%": 0.10,
-            "FT%": 0.10
-        },
-        "Two-Way C": {
-            "STL%": 0.25,
-            "BLK%": 0.30,
-            "TRB%": 0.25,
-            "PTS": 0.10,
-            "eFG%": 0.10
-        }
-    }
+# Definir los pesos para cada perfil
+perfil_pass_first = {
+    "AST%": 0.2,
+    "PPR": 0.40,  # Vamos a calcular esta métrica a partir de AST% y USG%
+    "STL%": 0.15,
+    "eFG%": 0.15,
+    "ORtg": 0.10,
+    "TOV%": 0.05
+}
+
+perfil_scorer = {
+    "ORtg": 0.40,
+    "3P%": 0.25,
+    "eFG%": 0.15,
+    "AST%": 0.10,
+    "STL%": 0.05,
+    "TOV%": 0.05
+}
+
+perfil_two_way = {
+    "AST%": 0.15,
+    "DRtg": 0.40,
+    "STL%": 0.15,
+    "TRB%": 0.10,
+    "eFG%": 0.10,
+    "TOV%": 0.10
 }
 
 # Función para calcular la puntuación de cada perfil
 def calcular_puntuacion(row, perfil):
     puntuacion = 0
+    # Si existe la columna "AST%" y "USG%", calculamos "AST/USG"
+    if "AST%" in row and "USG%" in row:
+        ast_usg = row["AST%"] / row["USG%"]  # Calcular AST/USG
+        row["AST/USG"] = ast_usg  # Asignar esta métrica al dataframe (de forma temporal)
+    
+    # Iterar sobre cada estadística y su peso
     for stat, peso in perfil.items():
+        # Verificar si la estadística existe en el dataframe
         if stat in row:
             try:
                 valor = float(row[stat])
                 puntuacion += valor * peso
             except ValueError:
                 st.write(f"Advertencia: No se pudo convertir el valor de {stat} para el jugador {row['Jugador']}. Valor: {row[stat]}")
+        else:
+            st.write(f"Advertencia: La columna {stat} no se encuentra en la fila del jugador {row['Jugador']}")
+    
     return puntuacion
 
-# Filtro de mínimo de minutos
-minutos_minimos = st.sidebar.slider(
-    "Selecciona el mínimo de minutos jugados",
-    min_value=int(df["Minutos"].min()), 
-    max_value=int(df["Minutos"].max()), 
-    value=int(df["Minutos"].min()), 
-    step=1
-)
+# Calcular las puntuaciones para todos los jugadores
+df["Puntuacion Pass-First"] = df.apply(lambda row: calcular_puntuacion(row, perfil_pass_first), axis=1)
+df["Puntuacion Scorer"] = df.apply(lambda row: calcular_puntuacion(row, perfil_scorer), axis=1)
+df["Puntuacion Two-Way"] = df.apply(lambda row: calcular_puntuacion(row, perfil_two_way), axis=1)
 
-# Filtrar los jugadores que tengan al menos el mínimo de minutos seleccionados
-df_filtrado = df[df["Minutos"] >= minutos_minimos]
+# Función para generar una lista visual de los 5 mejores jugadores de la posición seleccionada
+def generar_lista_imagen(df_filtrado, posicion, perfil):
+    # Filtramos los jugadores por posición
+    df_filtrado_pos = df_filtrado[df_filtrado["Posición"] == posicion]
+    
+    # Ordenamos por la puntuación del perfil seleccionado y tomamos los 5 mejores
+    df_filtrado_pos = df_filtrado_pos.sort_values(by=f"Puntuacion {perfil}", ascending=False).head(5)
+    
+    # Creamos una imagen en blanco para la lista
+    width, height = 600, 250  # Ajusta el tamaño según lo necesites
+    image = Image.new("RGB", (width, height), (255, 255, 255))
+    draw = ImageDraw.Draw(image)
 
-# Agregar las puntuaciones para los perfiles de todas las posiciones
-for posicion, perfiles in perfiles_posiciones.items():
-    for perfil_nombre, perfil in perfiles.items():
-        df_filtrado[perfil_nombre] = df_filtrado.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
+    # Agregar título
+    title = f"Top 5 - {posicion} ({perfil})"
+    draw.text((10, 10), title, fill="black")
 
-# Filtro para ver el perfil de la posición seleccionada (en barra lateral)
-st.sidebar.header("Selecciona el perfil para cada posición")
+    # Definir la fuente
+    try:
+        font = ImageFont.truetype("arial.ttf", 15)
+    except IOError:
+        font = ImageFont.load_default()
 
-# Filtrar por Base
-perfil_base = st.sidebar.selectbox("Perfil Base (PG)", ["Selecciona un perfil"] + list(perfiles_posiciones["Base (PG)"].keys()))
+    # Agregar la lista de jugadores
+    y_offset = 40  # Espacio entre líneas
+    for idx, row in df_filtrado_pos.iterrows():
+        texto = f"{row['Jugador']} - {row[f'Puntuacion {perfil}']:.2f}"
+        draw.text((10, y_offset), texto, fill="black", font=font)
+        y_offset += 20  # Aumentar la distancia entre las líneas
 
-# Filtrar por Escolta
-perfil_escolta = st.sidebar.selectbox("Perfil Escolta (SG)", ["Selecciona un perfil"] + list(perfiles_posiciones["Escolta (SG)"].keys()))
+    # Guardamos la imagen en un objeto de bytes para mostrarla en Streamlit
+    img_byte_arr = io.BytesIO()
+    image.save(img_byte_arr, format='PNG')
+    img_byte_arr.seek(0)
+    
+    # Mostrar la imagen en Streamlit
+    st.image(img_byte_arr, caption=f"Los 5 mejores jugadores de {posicion} ({perfil})", use_column_width=True)
 
-# Filtrar por Alero
-perfil_alero = st.sidebar.selectbox("Perfil Alero (SF)", ["Selecciona un perfil"] + list(perfiles_posiciones["Alero (SF)"].keys()))
+# Filtros para elegir la posición y el perfil
+posiciones = ["Base", "Escolta", "Alero", "Ala-Pívot", "Pívot"]
+perfil_seleccionado = st.selectbox("Selecciona un perfil", ["Pass-First", "Scorer", "Two-Way"])
+posicion_seleccionada = st.selectbox("Selecciona una posición", posiciones)
 
-# Filtrar por Ala-Pívot
-perfil_ala_pivot = st.sidebar.selectbox("Perfil Ala-Pívot (PF)", ["Selecciona un perfil"] + list(perfiles_posiciones["Ala-Pívot (PF)"].keys()))
-
-# Filtrar por Pívot
-perfil_pivot = st.sidebar.selectbox("Perfil Pívot (C)", ["Selecciona un perfil"] + list(perfiles_posiciones["Pívot (C)"].keys()))
-
-# Mostrar la tabla general de puntuaciones de los perfiles (sin filtros de posición ni perfil)
-st.write("Tabla General de Jugadores con sus puntuaciones por perfil:")
-perfil_columnas = [col for col in df_filtrado.columns if col not in ["Jugador", "Posición", "Minutos"]]  # Filtrar columnas de puntuaciones
-st.write(df_filtrado[["Jugador", "Posición"] + perfil_columnas])
-
-# Mostrar los 5 mejores jugadores para cada posición y perfil seleccionado en un gráfico
-def mostrar_mejores_jugadores(df_filtrado, posicion, perfil, nombre_perfil):
-    if perfil != "Selecciona un perfil":
-        df_filtrado_posicion = df_filtrado[df_filtrado["Posición"] == posicion].sort_values(perfil, ascending=False).head(5)
-        st.write(f"Los 5 mejores jugadores para el perfil '{nombre_perfil}' en la posición {posicion}:")
-        
-        # Gráfico de barras
-        fig, ax = plt.subplots(figsize=(8, 6))
-        sns.barplot(x="Jugador", y=perfil, data=df_filtrado_posicion, ax=ax)
-        ax.set_title(f"Top 5 - {nombre_perfil} en {posicion}")
-        ax.set_xlabel("Jugador")
-        ax.set_ylabel(f"Puntuación {nombre_perfil}")
-        st.pyplot(fig)
-
-# Mostrar los gráficos para cada posición
-mostrar_mejores_jugadores(df_filtrado, "Base (PG)", perfil_base, perfil_base)
-mostrar_mejores_jugadores(df_filtrado, "Escolta (SG)", perfil_escolta, perfil_escolta)
-mostrar_mejores_jugadores(df_filtrado, "Alero (SF)", perfil_alero, perfil_alero)
-mostrar_mejores_jugadores(df_filtrado, "Ala-Pívot (PF)", perfil_ala_pivot, perfil_ala_pivot)
-mostrar_mejores_jugadores(df_filtrado, "Pívot (C)", perfil_pivot, perfil_pivot)
+# Mostrar la lista de los 5 mejores jugadores por posición y perfil
+generar_lista_imagen(df, posicion_seleccionada, perfil_seleccionado)
