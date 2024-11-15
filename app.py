@@ -195,7 +195,7 @@ df_filtrado = df[df["Minutos"] >= minutos_minimos]
 # Agregar las puntuaciones para los perfiles de todas las posiciones
 for posicion, perfiles in perfiles_posiciones.items():
     for perfil_nombre, perfil in perfiles.items():
-        df_filtrado[perfil_nombre] = df_filtrado.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
+        df_filtrado[perfil_nombre] = df_filtrado.apply(lambda row: calcular_puntuacion_percentil(row, perfil), axis=1)
 
 # Filtro para ver el perfil de la posición seleccionada (en barra lateral)
 st.sidebar.header("Selecciona el perfil para cada posición")
