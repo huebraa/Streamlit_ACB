@@ -108,32 +108,21 @@ posicion_seleccionada = st.sidebar.selectbox("Seleccionar posición", ["Todas la
 if posicion_seleccionada != "Todas las posiciones":
     df = df[df["Posición"] == posicion_seleccionada]
 
+# Filtro para seleccionar el perfil de jugador
+perfil_seleccionado = st.sidebar.selectbox("Seleccionar perfil de jugador", ["Pass-First", "Scorer", "Two-Way"])
+
+# Definir el perfil según la selección
+if perfil_seleccionado == "Pass-First":
+    perfil = perfil_pass_first
+elif perfil_seleccionado == "Scorer":
+    perfil = perfil_scorer
+else:
+    perfil = perfil_two_way
+
 # Calcular las puntuaciones para todos los jugadores
-df["Puntuacion Pass-First"] = df.apply(lambda row: calcular_puntuacion(row, perfil_pass_first), axis=1)
-df["Puntuacion Scorer"] = df.apply(lambda row: calcular_puntuacion(row, perfil_scorer), axis=1)
-df["Puntuacion Two-Way"] = df.apply(lambda row: calcular_puntuacion(row, perfil_two_way), axis=1)
+df["Puntuacion"] = df.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
 
-# Mostrar los datos con las puntuaciones calculadas
-st.write(f"Puntuaciones de los jugadores para la posición: {posicion_seleccionada}")
-df_mostrar = df[["Jugador", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way", "Minutos"]]
-df_mostrar = df_mostrar.sort_values(by="Puntuacion Pass-First", ascending=False)
-
-# Mostrar la tabla de puntuaciones
-st.write(df_mostrar)
-
-# Mostrar los 5 mejores jugadores según el perfil elegido en un recuadro con fondo gris
-if posicion_seleccionada != "Todas las posiciones":
-    perfil_seleccionado = st.sidebar.selectbox("Seleccionar perfil", ["Pass-First", "Scorer", "Two-Way"])
-
-    if perfil_seleccionado == "Pass-First":
-        df_top = df[["Jugador", "Puntuacion Pass-First", "Posición"]].sort_values(by="Puntuacion Pass-First", ascending=False).head(5)
-        st.markdown("<div style='background-color: #f0f0f0; padding: 10px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'><h4>Top 5 - Pass-First</h4></div>", unsafe_allow_html=True)
-        st.write(df_top)
-    elif perfil_seleccionado == "Scorer":
-        df_top = df[["Jugador", "Puntuacion Scorer", "Posición"]].sort_values(by="Puntuacion Scorer", ascending=False).head(5)
-        st.markdown("<div style='background-color: #f0f0f0; padding: 10px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'><h4>Top 5 - Scorer</h4></div>", unsafe_allow_html=True)
-        st.write(df_top)
-    elif perfil_seleccionado == "Two-Way":
-        df_top = df[["Jugador", "Puntuacion Two-Way", "Posición"]].sort_values(by="Puntuacion Two-Way", ascending=False).head(5)
-        st.markdown("<div style='background-color: #f0f0f0; padding: 10px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'><h4>Top 5 - Two-Way</h4></div>", unsafe_allow_html=True)
-        st.write(df_top)
+# Mostrar los 5 mejores jugadores según el perfil seleccionado
+st.write(f"Los 5 mejores jugadores para el perfil: {perfil_seleccionado}")
+df_mejores = df[["Jugador", "Puntuacion", "Minutos"]].sort_values(by="Puntuacion", ascending=False).head(5)
+st.write(df_mejores)
