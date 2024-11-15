@@ -107,11 +107,9 @@ try:
 except Exception as e:
     st.write(f"Error calculando las puntuaciones: {e}")
 
-# Mostrar las puntuaciones calculadas para cada perfil
-st.write("Puntuaciones calculadas para cada jugador según los perfiles:")
-
-# Verificar los valores de las puntuaciones
-st.write(df_base[["Jugador", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way"]])
+# Verificar que las puntuaciones se calculan correctamente
+st.write("Comprobando las puntuaciones calculadas para algunos jugadores:")
+st.write(df_base[["Jugador", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way"]].head(10))
 
 # Filtros adicionales ya existentes para la aplicación
 posiciones = df["Posición"].unique()
