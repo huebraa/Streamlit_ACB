@@ -40,54 +40,135 @@ columnas_espanol = {
 # Renombrar las columnas
 df = df.rename(columns=columnas_espanol)
 
-# Definir los pesos para cada perfil
-perfil_pass_first = {
-    "AST%": 0.2,
-    "PPR": 0.40,  # Vamos a calcular esta métrica a partir de AST% y USG%
-    "STL%": 0.15,
-    "eFG%": 0.15,
-    "ORtg": 0.10,
-    "TOV%": 0.05
-}
-
-perfil_scorer = {
-    "ORtg": 0.40,
-    "3P%": 0.25,
-    "eFG%": 0.15,
-    "AST%": 0.10,
-    "STL%": 0.05,
-    "TOV%": 0.05
-}
-
-perfil_two_way = {
-    "AST%": 0.15,
-    "DRtg": 0.40,
-    "STL%": 0.15,
-    "TRB%": 0.10,
-    "eFG%": 0.10,
-    "TOV%": 0.10
+# Filtros de posiciones
+perfiles_posiciones = {
+    "Base (PG)": {
+        "Pass-First PG": {
+            "AST%": 0.30,
+            "PPR": 0.30,
+            "STL%": 0.15,
+            "eFG%": 0.10,
+            "ORtg": 0.10
+        },
+        "Scorer PG": {
+            "PTS": 0.40,
+            "3P%": 0.25,
+            "AST%": 0.10,
+            "STL%": 0.10,
+            "TOV%": 0.15
+        },
+        "Two-Way PG": {
+            "STL%": 0.30,
+            "AST%": 0.20,
+            "DRtg": 0.25,
+            "TRB%": 0.15,
+            "PER": 0.10
+        }
+    },
+    "Escolta (SG)": {
+        "Pass-First SG": {
+            "AST%": 0.35,
+            "PPR": 0.25,
+            "STL%": 0.15,
+            "eFG%": 0.10,
+            "ORtg": 0.15
+        },
+        "Scorer SG": {
+            "PTS": 0.40,
+            "3P%": 0.30,
+            "eFG%": 0.15,
+            "STL%": 0.10,
+            "TOV%": 0.05
+        },
+        "Two-Way SG": {
+            "STL%": 0.35,
+            "DRtg": 0.25,
+            "AST%": 0.15,
+            "3P%": 0.10,
+            "TOV%": 0.15
+        }
+    },
+    "Alero (SF)": {
+        "Playmaking SF": {
+            "AST%": 0.30,
+            "PPR": 0.30,
+            "STL%": 0.15,
+            "eFG%": 0.15,
+            "ORtg": 0.10
+        },
+        "Scoring SF": {
+            "PTS": 0.40,
+            "3P%": 0.30,
+            "eFG%": 0.15,
+            "STL%": 0.10,
+            "TOV%": 0.05
+        },
+        "Two-Way SF": {
+            "STL%": 0.35,
+            "DRtg": 0.30,
+            "TRB%": 0.15,
+            "eFG%": 0.10,
+            "TOV%": 0.10
+        }
+    },
+    "Ala-Pívot (PF)": {
+        "Stretch PF": {
+            "3P%": 0.35,
+            "eFG%": 0.30,
+            "PTS": 0.20,
+            "TRB%": 0.10,
+            "TOV%": 0.05
+        },
+        "Post-Play PF": {
+            "TRB%": 0.30,
+            "PTS": 0.25,
+            "BLK%": 0.20,
+            "ORtg": 0.15,
+            "STL%": 0.10
+        },
+        "Two-Way PF": {
+            "STL%": 0.25,
+            "TRB%": 0.25,
+            "DRtg": 0.20,
+            "eFG%": 0.15,
+            "TOV%": 0.15
+        }
+    },
+    "Pívot (C)": {
+        "Defensive C": {
+            "BLK%": 0.40,
+            "DRtg": 0.30,
+            "TRB%": 0.15,
+            "TOV%": 0.10,
+            "STL%": 0.05
+        },
+        "Scoring C": {
+            "PTS": 0.35,
+            "TRB%": 0.25,
+            "FG%": 0.20,
+            "3P%": 0.10,
+            "FT%": 0.10
+        },
+        "Two-Way C": {
+            "STL%": 0.25,
+            "BLK%": 0.30,
+            "TRB%": 0.25,
+            "PTS": 0.10,
+            "eFG%": 0.10
+        }
+    }
 }
 
 # Función para calcular la puntuación de cada perfil
 def calcular_puntuacion(row, perfil):
     puntuacion = 0
-    # Si existe la columna "AST%" y "USG%", calculamos "AST/USG"
-    if "AST%" in row and "USG%" in row:
-        ast_usg = row["AST%"] / row["USG%"]  # Calcular AST/USG
-        row["AST/USG"] = ast_usg  # Asignar esta métrica al dataframe (de forma temporal)
-    
-    # Iterar sobre cada estadística y su peso
     for stat, peso in perfil.items():
-        # Verificar si la estadística existe en el dataframe
         if stat in row:
             try:
                 valor = float(row[stat])
                 puntuacion += valor * peso
             except ValueError:
                 st.write(f"Advertencia: No se pudo convertir el valor de {stat} para el jugador {row['Jugador']}. Valor: {row[stat]}")
-        else:
-            st.write(f"Advertencia: La columna {stat} no se encuentra en la fila del jugador {row['Jugador']}")
-    
     return puntuacion
 
 # Filtro de mínimo de minutos
@@ -105,46 +186,22 @@ df = df[df["Minutos"] >= minutos_minimos]
 # Filtro para ver por posición (en barra lateral)
 posicion_seleccionada = st.sidebar.selectbox("Seleccionar posición", ["Todas las posiciones", "Base (PG)", "Escolta (SG)", "Alero (SF)", "Ala-Pívot (PF)", "Pívot (C)"])
 
-if posicion_seleccionada != "Todas las posiciones":
-    df = df[df["Posición"] == posicion_seleccionada]
-
 # Filtro para seleccionar el perfil de jugador
 perfil_seleccionado = st.sidebar.selectbox("Seleccionar perfil de jugador", ["Pass-First", "Scorer", "Two-Way"])
 
-# Definir el perfil según la selección
-if perfil_seleccionado == "Pass-First":
-    perfil = perfil_pass_first
-elif perfil_seleccionado == "Scorer":
-    perfil = perfil_scorer
+# Definir el perfil según la selección y la posición
+if posicion_seleccionada != "Todas las posiciones":
+    perfil = perfiles_posiciones[posicion_seleccionada].get(f"{perfil_seleccionado} {posicion_seleccionada}", None)
 else:
-    perfil = perfil_two_way
+    perfil = None
 
 # Calcular las puntuaciones para todos los jugadores
-df["Puntuacion"] = df.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
+if perfil is not None:
+    df["Puntuacion"] = df.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
 
-# Mostrar la tabla general
-st.write("Tabla general de jugadores:")
-st.write(df[["Jugador", "Posición", "Minutos", "PTS", "Puntuacion"]])
-
-# Mostrar los 5 mejores jugadores según el perfil seleccionado, solo si la posición seleccionada es 'Base (PG)'
-if posicion_seleccionada == "Base (PG)":
-    st.markdown("""
-        <style>
-        .recuadro {
-            background-color: #f0f0f0;
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-        }
-        </style>
-        <div class="recuadro">
-            <h3>Los 5 mejores jugadores para el perfil: {perfil_seleccionado}</h3>
-            <div>
-                {df_mejores.to_html(index=False)}
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    # Obtener los 5 mejores jugadores según el perfil seleccionado
-    df_mejores = df[["Jugador", "Puntuacion", "Minutos"]].sort_values(by="Puntuacion", ascending=False).head(5)
+    # Mostrar los 5 mejores jugadores según el perfil seleccionado
+    st.write(f"Los 5 mejores jugadores para el perfil: {perfil_seleccionado} - {posicion_seleccionada}")
+    df_mejores = df[["Jugador", "Posición", "Puntuacion", "Minutos"]].sort_values(by="Puntuacion", ascending=False).head(5)
     st.write(df_mejores)
+else:
+    st.write("Selecciona una posición y un perfil para ver los resultados.")
