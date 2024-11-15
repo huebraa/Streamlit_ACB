@@ -42,3 +42,19 @@ df_filtrado = df[(df["Posición"] == posicion) &
 st.write(f"Jugadores en la posición {posicion} con entre {minutos[0]} y {minutos[1]} minutos jugados:")
 st.dataframe(df_filtrado)
 
+# Mostrar estadísticas agregadas si las columnas existen
+if 'Puntos' in df_filtrado.columns:
+    st.write(f"Promedio de puntos por jugador: {df_filtrado['Puntos'].astype(float).mean():.2f}")
+else:
+    st.write("No se encontró la columna de 'Puntos' en los datos.")
+
+if 'Rebotes' in df_filtrado.columns:
+    st.write(f"Promedio de rebotes por jugador: {df_filtrado['Rebotes'].astype(float).mean():.2f}")
+else:
+    st.write("No se encontró la columna de 'Rebotes' en los datos.")
+
+if 'Asistencias' in df_filtrado.columns:
+    st.write(f"Promedio de asistencias por jugador: {df_filtrado['Asistencias'].astype(float).mean():.2f}")
+else:
+    st.write("No se encontró la columna de 'Asistencias' en los datos.")
+
