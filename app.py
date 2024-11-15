@@ -88,18 +88,11 @@ def calcular_puntuacion(row, perfil):
     
     return puntuacion
 
-# Filtrar solo para "Facundo Campazzo"
-df_facundo = df[df["Jugador"] == "Facundo Campazzo"]
+# Calcular las puntuaciones para los jugadores de la posición base (PG)
+df_base["Puntuacion Pass-First"] = df_base.apply(lambda row: calcular_puntuacion(row, perfil_pass_first), axis=1)
+df_base["Puntuacion Scorer"] = df_base.apply(lambda row: calcular_puntuacion(row, perfil_scorer), axis=1)
+df_base["Puntuacion Two-Way"] = df_base.apply(lambda row: calcular_puntuacion(row, perfil_two_way), axis=1)
 
-# Verificar que se tiene el jugador en el DataFrame
-if df_facundo.empty:
-    st.write("No se encontró a Facundo Campazzo en el dataset.")
-else:
-    # Calcular las puntuaciones para los perfiles
-    df_facundo["Puntuacion Pass-First"] = df_facundo.apply(lambda row: calcular_puntuacion(row, perfil_pass_first), axis=1)
-    df_facundo["Puntuacion Scorer"] = df_facundo.apply(lambda row: calcular_puntuacion(row, perfil_scorer), axis=1)
-    df_facundo["Puntuacion Two-Way"] = df_facundo.apply(lambda row: calcular_puntuacion(row, perfil_two_way), axis=1)
-
-    # Mostrar las puntuaciones calculadas para Facundo Campazzo
-    st.write("Puntuaciones de Facundo Campazzo según los perfiles:")
-    st.write(df_facundo[["Jugador", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way"]])
+# Mostrar las puntuaciones calculadas para todos los bases
+st.write("Puntuaciones para todos los jugadores de la posición Base (PG) según los perfiles:")
+st.write(df_base[["Jugador", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way"]])
