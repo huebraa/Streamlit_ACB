@@ -43,9 +43,6 @@ df = df.rename(columns=columnas_espanol)
 # Filtrar solo a jugadores en la posición de base (PG)
 df_base = df[df["Posición"] == "PG"]
 
-# Verificar las primeras filas para asegurarnos de que los datos están cargados correctamente
-st.write("Datos cargados: ", df.head())
-
 # Definir los pesos para cada perfil
 perfil_pass_first = {
     "AST%": 0.30,
@@ -102,6 +99,7 @@ def calcular_puntuacion(df, perfil):
 # Calcular puntuaciones para cada perfil
 st.write("Calculando puntuaciones para los perfiles...")
 
+# Crear las columnas de puntuaciones para cada perfil
 try:
     df_base["Puntuacion Pass-First"] = calcular_puntuacion(df_base, perfil_pass_first)
     df_base["Puntuacion Scorer"] = calcular_puntuacion(df_base, perfil_scorer)
@@ -114,21 +112,6 @@ st.write("Puntuaciones calculadas para cada jugador según los perfiles:")
 
 # Verificar los valores de las puntuaciones
 st.write(df_base[["Jugador", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way"]])
-
-# Mostrar los 5 mejores jugadores según cada perfil (solo mostrar nombre y puntuación)
-top_5_pass_first = df_base.nlargest(5, "Puntuacion Pass-First")[["Jugador", "Puntuacion Pass-First"]]
-top_5_scorer = df_base.nlargest(5, "Puntuacion Scorer")[["Jugador", "Puntuacion Scorer"]]
-top_5_two_way = df_base.nlargest(5, "Puntuacion Two-Way")[["Jugador", "Puntuacion Two-Way"]]
-
-# Mostrar los resultados en la parte principal
-st.subheader("Top 5 Jugadores - Pass-First PG")
-st.dataframe(top_5_pass_first)
-
-st.subheader("Top 5 Jugadores - Scoring PG")
-st.dataframe(top_5_scorer)
-
-st.subheader("Top 5 Jugadores - Two-Way PG")
-st.dataframe(top_5_two_way)
 
 # Filtros adicionales ya existentes para la aplicación
 posiciones = df["Posición"].unique()
@@ -150,3 +133,7 @@ df_filtrado = df[(df["Posición"] == posicion) &
 # Mostrar los resultados filtrados en la sección principal
 st.write(f"Jugadores en la posición {posicion} con entre {minutos[0]} y {minutos[1]} minutos jugados:")
 st.dataframe(df_filtrado)
+
+# Mostrar la tabla completa con las puntuaciones para cada jugador
+st.write("Tabla completa con las puntuaciones de los jugadores:")
+st.dataframe(df_base[["Jugador", "Posición", "Minutos", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way"]])
