@@ -4,7 +4,7 @@ import pandas as pd
 # Cargar datos
 @st.cache
 def cargar_datos():
-    return pd.read_csv("estadisticas_acb.csv")
+    return pd.read_csv("estadisticas_completas.csv")
 
 datos = cargar_datos()
 
