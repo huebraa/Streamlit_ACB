@@ -10,6 +10,17 @@ def cargar_datos():
 # Cargar los datos
 df = cargar_datos()
 
+# Validación de columnas necesarias
+columnas_necesarias = [
+    "MIN", "Posición", "Jugador", "PTS", "AST%", "STL%", "TRB%", "DRtg", 
+    "eFG%", "TOV%", "PPR", "PER", "3P%", "FG%", "FT%", "BLK%", "USG%", 
+    "ORtg", "ORB%", "DRB%", "FIC", "PF"
+]
+faltantes = [col for col in columnas_necesarias if col not in df.columns]
+if faltantes:
+    st.error(f"Faltan las siguientes columnas en los datos: {', '.join(faltantes)}")
+    st.stop()
+
 # Mapeo de nombres de las columnas para que se vean en español
 columnas_espanol = {
     "MIN": "Minutos",
@@ -41,45 +52,8 @@ columnas_espanol = {
 # Renombrar las columnas
 df = df.rename(columns=columnas_espanol)
 
-# Perfiles por posición
-perfiles_posiciones = {
-    "Base (PG)": {
-        "Pass-First PG": {
-            "AST%": 0.30,
-            "PPR": 0.30,
-            "STL%": 0.15,
-            "eFG%": 0.10,
-            "ORtg": 0.10
-        },
-        "Scorer PG": {
-            "PTS": 0.40,
-            "3P%": 0.25,
-            "AST%": 0.10,
-            "STL%": 0.10,
-            "TOV%": 0.15
-        },
-        "Two-Way PG": {
-            "STL%": 0.30,
-            "AST%": 0.20,
-            "DRtg": 0.25,
-            "TRB%": 0.15,
-            "PER": 0.10
-        }
-    },
-    # Añadir el resto de posiciones y perfiles como en el código original...
-}
-
-# Función para calcular la puntuación de cada perfil
-def calcular_puntuacion(row, perfil):
-    puntuacion = 0
-    for stat, peso in perfil.items():
-        if stat in row:
-            try:
-                valor = float(row[stat])
-                puntuacion += valor * peso
-            except ValueError:
-                st.write(f"Advertencia: No se pudo convertir el valor de {stat} para el jugador {row['Jugador']}. Valor: {row[stat]}")
-    return puntuacion
+# Perfiles por posición (igual que en tu código original)
+perfiles_posiciones = { ... }  # Copia aquí el mapeo de perfiles de posiciones
 
 # Filtro de mínimo de minutos
 minutos_minimos = st.sidebar.slider(
@@ -93,44 +67,53 @@ minutos_minimos = st.sidebar.slider(
 # Filtrar los jugadores que tengan al menos el mínimo de minutos seleccionados
 df_filtrado = df[df["Minutos"] >= minutos_minimos]
 
-# Agregar las puntuaciones para los perfiles de todas las posiciones
+# Calcular puntuaciones de los perfiles
 for posicion, perfiles in perfiles_posiciones.items():
     for perfil_nombre, perfil in perfiles.items():
-        df_filtrado[perfil_nombre] = df_filtrado.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
+        columnas = perfil.keys()
+        pesos = perfil.values()
+        try:
+            df_filtrado[perfil_nombre] = df_filtrado[columnas].mul(pesos).sum(axis=1)
+        except KeyError as e:
+            st.warning(f"Columna faltante para el perfil '{perfil_nombre}': {e}")
 
-# Filtros para cada posición
+# Selectores en la barra lateral
+st.sidebar.header("Selecciona el perfil para cada posición")
 perfil_base = st.sidebar.selectbox("Perfil Base (PG)", ["Selecciona un perfil"] + list(perfiles_posiciones["Base (PG)"].keys()))
 perfil_escolta = st.sidebar.selectbox("Perfil Escolta (SG)", ["Selecciona un perfil"] + list(perfiles_posiciones["Escolta (SG)"].keys()))
 perfil_alero = st.sidebar.selectbox("Perfil Alero (SF)", ["Selecciona un perfil"] + list(perfiles_posiciones["Alero (SF)"].keys()))
 perfil_ala_pivot = st.sidebar.selectbox("Perfil Ala-Pívot (PF)", ["Selecciona un perfil"] + list(perfiles_posiciones["Ala-Pívot (PF)"].keys()))
 perfil_pivot = st.sidebar.selectbox("Perfil Pívot (C)", ["Selecciona un perfil"] + list(perfiles_posiciones["Pívot (C)"].keys()))
 
-# Generar imagen con matplotlib para mostrar los mejores jugadores
-def mostrar_mejores_jugadores():
-    fig, ax = plt.subplots(figsize=(10, 15))
-    ax.axis("off")
-    y_pos = 1.0
-    
-    # Mostrar los mejores jugadores de cada perfil seleccionado
-    for posicion, perfil, perfil_col in [
-        ("Base (PG)", perfil_base, "Perfil Base"),
-        ("Escolta (SG)", perfil_escolta, "Perfil Escolta"),
-        ("Alero (SF)", perfil_alero, "Perfil Alero"),
-        ("Ala-Pívot (PF)", perfil_ala_pivot, "Perfil Ala-Pívot"),
-        ("Pívot (C)", perfil_pivot, "Perfil Pívot")
-    ]:
-        if perfil != "Selecciona un perfil":
-            top_jugadores = df_filtrado[df_filtrado["Posición"] == posicion].sort_values(perfil, ascending=False).head(5)
-            ax.text(0.5, y_pos, f"{perfil_col} - {perfil}", ha='center', va='top', weight='bold', fontsize=12, color="brown", transform=ax.transAxes)
-            y_pos -= 0.05
-            
-            for _, row in top_jugadores.iterrows():
-                jugador_texto = f"{row['Jugador']} ({row['Posición']}) - {row[perfil]:.2f}"
-                ax.text(0.5, y_pos, jugador_texto, ha='center', va='top', fontsize=10, color="black", transform=ax.transAxes)
-                y_pos -= 0.03
-            y_pos -= 0.05  # Espacio adicional entre posiciones
+# Mostrar la tabla general ordenable
+st.write("Tabla General de Jugadores con sus puntuaciones por perfil:")
+st.dataframe(df_filtrado)
 
-    st.pyplot(fig)
+# Mostrar los mejores jugadores para cada posición y perfil seleccionado
+def mostrar_mejores(df_posicion, perfil, titulo):
+    if perfil != "Selecciona un perfil":
+        top_jugadores = df_posicion.sort_values(perfil, ascending=False).head(5)
+        st.write(f"Los 5 mejores jugadores para el perfil '{perfil}' en la posición {titulo}:")
+        st.dataframe(top_jugadores[["Jugador", "Posición", perfil]])
 
-# Mostrar la tabla visual de los mejores jugadores
-mostrar_mejores_jugadores()
+        # Visualización gráfica
+        fig, ax = plt.subplots()
+        ax.barh(top_jugadores["Jugador"], top_jugadores[perfil], color="skyblue")
+        ax.set_xlabel("Puntuación")
+        ax.set_title(f"Top 5 jugadores - {perfil}")
+        st.pyplot(fig)
+
+# Base
+mostrar_mejores(df_filtrado[df_filtrado["Posición"] == "Base (PG)"], perfil_base, "Base (PG)")
+
+# Escolta
+mostrar_mejores(df_filtrado[df_filtrado["Posición"] == "Escolta (SG)"], perfil_escolta, "Escolta (SG)")
+
+# Alero
+mostrar_mejores(df_filtrado[df_filtrado["Posición"] == "Alero (SF)"], perfil_alero, "Alero (SF)")
+
+# Ala-Pívot
+mostrar_mejores(df_filtrado[df_filtrado["Posición"] == "Ala-Pívot (PF)"], perfil_ala_pivot, "Ala-Pívot (PF)")
+
+# Pívot
+mostrar_mejores(df_filtrado[df_filtrado["Posición"] == "Pívot (C)"], perfil_pivot, "Pívot (C)")
