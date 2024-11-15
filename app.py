@@ -97,4 +97,10 @@ df["Puntuacion Two-Way"] = df.apply(lambda row: calcular_puntuacion(row, perfil_
 
 # Mostrar las puntuaciones calculadas para todos los jugadores
 st.write("Puntuaciones de todos los jugadores según los perfiles:")
-st.write(df[["Jugador", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way"]].sort_values(by="Puntuacion Pass-First", ascending=False))
+# Selección de las columnas que deseas mostrar
+df_mostrar = df[["Jugador", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way"]]
+df_mostrar = df_mostrar.sort_values(by="Puntuacion Pass-First", ascending=False)
+
+# Mostrar la tabla de puntuaciones
+st.write(df_mostrar)
+
