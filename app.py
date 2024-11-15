@@ -61,9 +61,9 @@ perfil_scorer = {
 
 perfil_two_way = {
     "AST%": 0.15,
-    "DRtg": 0.35,
+    "DRtg": 0.40,
     "STL%": 0.15,
-    "TRB%": 0.15,
+    "TRB%": 0.10,
     "eFG%": 0.10,
     "TOV%": 0.10
 }
