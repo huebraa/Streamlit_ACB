@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 
 # Función para cargar los datos
@@ -161,24 +160,29 @@ perfiles_posiciones = {
     }
 }
 
-# Función para calcular el percentil
-def calcular_percentil(df, columna, posicion):
-    # Filtrar por posición
+# Función para calcular los percentiles por posición
+def calcular_percentiles_por_posicion(df, posicion):
+    # Filtrar los jugadores por la posición
     df_posicion = df[df["Posición"] == posicion]
-    # Calcular el percentil de la columna para los jugadores en esa posición
-    percentil = np.percentile(df_posicion[columna], 50)  # Percentil 50 (mediana) como ejemplo
-    return percentil
+    
+    # Aplicar percentiles sobre las estadísticas para cada jugador
+    for col in df.columns:
+        if col not in ["Jugador", "Posición", "Minutos"]:  # Excluir columnas no numéricas
+            df_posicion[col + "_percentil"] = df_posicion.groupby("Posición")[col].transform(lambda x: pd.qcut(x, 100, labels=False) + 1)
+    
+    return df_posicion
 
-# Función para calcular la puntuación de cada perfil usando percentiles
-def calcular_puntuacion_percentil(row, perfil, posicion):
+# Función para calcular la puntuación del perfil usando percentiles
+def calcular_puntuacion_percentil(row, perfil):
     puntuacion = 0
     for stat, peso in perfil.items():
-        if stat in row:
-            # Obtener el percentil para esa estadística y la posición
-            percentil = calcular_percentil(df, stat, posicion)
-            valor = row[stat]  # Obtener el valor de la estadística para ese jugador
-            # Ajustar el valor según el percentil
-            puntuacion += (valor / percentil) * peso if percentil != 0 else 0  # Evitar división por cero
+        percentil_columna = stat + "_percentil"
+        if percentil_columna in row:
+            try:
+                valor = row[percentil_columna]  # Usamos los percentiles
+                puntuacion += valor * peso
+            except ValueError:
+                st.write(f"Advertencia: No se pudo calcular el percentil de {stat} para el jugador {row['Jugador']}. Valor: {row[percentil_columna]}")
     return puntuacion
 
 # Filtro de mínimo de minutos
@@ -193,10 +197,15 @@ minutos_minimos = st.sidebar.slider(
 # Filtrar los jugadores que tengan al menos el mínimo de minutos seleccionados
 df_filtrado = df[df["Minutos"] >= minutos_minimos]
 
+# Agregar los percentiles por posición
+df_filtrado = df_filtrado.copy()
+for posicion in perfiles_posiciones.keys():
+    df_filtrado[posicion] = calcular_percentiles_por_posicion(df_filtrado, posicion)
+
 # Agregar las puntuaciones para los perfiles de todas las posiciones
 for posicion, perfiles in perfiles_posiciones.items():
     for perfil_nombre, perfil in perfiles.items():
-        df_filtrado[perfil_nombre] = df_filtrado.apply(lambda row: calcular_puntuacion_percentil(row, perfil, posicion), axis=1)
+        df_filtrado[perfil_nombre] = df_filtrado.apply(lambda row: calcular_puntuacion_percentil(row, perfil), axis=1)
 
 # Filtro para ver el perfil de la posición seleccionada (en barra lateral)
 st.sidebar.header("Selecciona el perfil para cada posición")
@@ -216,34 +225,42 @@ perfil_ala_pivot = st.sidebar.selectbox("Perfil Ala-Pívot (PF)", ["Selecciona u
 # Filtrar por Pívot
 perfil_pivot = st.sidebar.selectbox("Perfil Pívot (C)", ["Selecciona un perfil"] + list(perfiles_posiciones["Pívot (C)"].keys()))
 
-# Función para mostrar los 5 mejores jugadores de un perfil en imagen
-def mostrar_imagen_top_5_percentil(df_filtrado, posicion, perfil):
-    # Filtrar los jugadores para esa posición y perfil
-    if perfil != "Selecciona un perfil":
-        df_top_5 = df_filtrado[["Jugador", perfil]]
-        df_top_5 = df_top_5.sort_values(by=perfil, ascending=False).head(5)
+# Función para mostrar los 5 mejores jugadores como imagen
+def mostrar_imagen_top_5(df_filtrado, posicion, perfil):
+    # Filtrar por la posición y perfil seleccionado
+    df_posicion = df_filtrado[df_filtrado["Posición"] == posicion].sort_values(perfil, ascending=False).head(5)
+    
+    # Crear la imagen con matplotlib
+    fig, ax = plt.subplots(figsize=(6, 4))
+    
+    # Crear lista de jugadores y puntuaciones
+    jugadores = df_posicion["Jugador"]
+    puntuaciones = df_posicion[perfil]
+    
+    # Mostrar la lista como un gráfico
+    ax.barh(jugadores, puntuaciones, color='skyblue')
+    ax.set_xlabel('Puntuación')
+    ax.set_title(f"Top 5 jugadores para el perfil '{perfil}' en la posición {posicion}")
+    
+    # Mostrar la imagen en Streamlit
+    st.pyplot(fig)
 
-        # Crear la imagen de los 5 mejores jugadores
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.barh(df_top_5["Jugador"], df_top_5[perfil], color='skyblue')
-        ax.set_xlabel('Puntuación')
-        ax.set_title(f"Top 5 jugadores para el perfil '{perfil}' en la posición {posicion}")
-
-        # Mostrar la imagen en Streamlit
-        st.pyplot(fig)
-
-# Mostrar los 5 mejores para cada perfil y posición
+# Mostrar la imagen de los 5 mejores para la Base (PG) y su perfil seleccionado
 if perfil_base != "Selecciona un perfil":
-    mostrar_imagen_top_5_percentil(df_filtrado, "Base (PG)", perfil_base)
+    mostrar_imagen_top_5(df_filtrado, "Base (PG)", perfil_base)
 
+# Mostrar la imagen de los 5 mejores para la Escolta (SG) y su perfil seleccionado
 if perfil_escolta != "Selecciona un perfil":
-    mostrar_imagen_top_5_percentil(df_filtrado, "Escolta (SG)", perfil_escolta)
+    mostrar_imagen_top_5(df_filtrado, "Escolta (SG)", perfil_escolta)
 
+# Mostrar la imagen de los 5 mejores para el Alero (SF) y su perfil seleccionado
 if perfil_alero != "Selecciona un perfil":
-    mostrar_imagen_top_5_percentil(df_filtrado, "Alero (SF)", perfil_alero)
+    mostrar_imagen_top_5(df_filtrado, "Alero (SF)", perfil_alero)
 
+# Mostrar la imagen de los 5 mejores para el Ala-Pívot (PF) y su perfil seleccionado
 if perfil_ala_pivot != "Selecciona un perfil":
-    mostrar_imagen_top_5_percentil(df_filtrado, "Ala-Pívot (PF)", perfil_ala_pivot)
+    mostrar_imagen_top_5(df_filtrado, "Ala-Pívot (PF)", perfil_ala_pivot)
 
+# Mostrar la imagen de los 5 mejores para el Pívot (C) y su perfil seleccionado
 if perfil_pivot != "Selecciona un perfil":
-    mostrar_imagen_top_5_percentil(df_filtrado, "Pívot (C)", perfil_pivot)
+    mostrar_imagen_top_5(df_filtrado, "Pívot (C)", perfil_pivot)
