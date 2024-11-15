@@ -1,3 +1,7 @@
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+
 # Función para cargar los datos
 @st.cache
 def cargar_datos():
@@ -156,16 +160,6 @@ perfiles_posiciones = {
     }
 }
 
-# Normalización de estadísticas a percentiles por posición
-estadisticas_relevantes = set(
-    stat for perfiles in perfiles_posiciones.values() for perfil in perfiles.values() for stat in perfil.keys()
-)
-
-# Calcular percentiles dentro de cada posición
-for stat in estadisticas_relevantes:
-    if stat in df:  # Asegúrate de que la estadística está en el DataFrame
-        df[stat] = df.groupby("Posición")[stat].rank(pct=True) * 100
-
 # Función para calcular la puntuación de cada perfil
 def calcular_puntuacion(row, perfil):
     puntuacion = 0
@@ -178,15 +172,18 @@ def calcular_puntuacion(row, perfil):
                 st.write(f"Advertencia: No se pudo convertir el valor de {stat} para el jugador {row['Jugador']}. Valor: {row[stat]}")
     return puntuacion
 
-# Filtrado por mínimo de minutos
+# Filtro de mínimo de minutos
 minutos_minimos = st.sidebar.slider(
     "Selecciona el mínimo de minutos jugados",
-    min_value=int(df["Minutos"].min()),
-    max_value=int(df["Minutos"].max()),
-    value=int(df["Minutos"].min()),
+    min_value=int(df["Minutos"].min()), 
+    max_value=int(df["Minutos"].max()), 
+    value=int(df["Minutos"].min()), 
     step=1
 )
 
+
+
+# Filtrar los jugadores que tengan al menos el mínimo de minutos seleccionados
 df_filtrado = df[df["Minutos"] >= minutos_minimos]
 
 # Agregar las puntuaciones para los perfiles de todas las posiciones
