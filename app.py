@@ -42,11 +42,11 @@ df = df.rename(columns=columnas_espanol)
 
 # Definir los pesos para cada perfil
 perfil_pass_first = {
-    "AST%": 0.30,
-    "AST/USG": 0.25,  # Vamos a calcular esta métrica a partir de AST% y USG%
+    "AST%": 0.2,
+    "PPR": 0.40,  # Vamos a calcular esta métrica a partir de AST% y USG%
     "STL%": 0.15,
     "eFG%": 0.15,
-    "PTS": 0.10,
+    "ORtg": 0.10,
     "TOV%": 0.05
 }
 
