@@ -176,7 +176,7 @@ def calcular_puntuacion_percentil(row, perfil, posicion):
             percentil = calcular_percentil(df, stat, posicion)
             valor = row[stat]  # Obtener el valor de la estadística para ese jugador
             # Ajustar el valor según el percentil
-            puntuacion += (valor / percentil) * peso if percentil != 0 else 0  # Evitar división por cero
+           puntuacion += ((valor / percentil) * peso * 100) if percentil != 0 else 0  # Evitar división por ceroo
     return puntuacion
 
 # Filtro de mínimo de minutos
