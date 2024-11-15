@@ -223,6 +223,22 @@ if perfil_base != "Selecciona un perfil":
 if perfil_escolta != "Selecciona un perfil":
     df_escolta = df_filtrado[df_filtrado["Posición"] == "Escolta (SG)"].sort_values(perfil_escolta, ascending=False).head(5)
     st.write(f"Los 5 mejores jugadores para el perfil '{perfil_escolta}' en la posición Escolta (SG):")
-    st.write(df_escolta[["Jugador", "Posición", perfil_escolto]])
+    st.write(df_escolta[["Jugador", "Posición", perfil_escolta]])
 
-# De forma similar se repite para Alero, Ala-Pívot y Pívot...
+# Para Alero
+if perfil_alero != "Selecciona un perfil":
+    df_alero = df_filtrado[df_filtrado["Posición"] == "Alero (SF)"].sort_values(perfil_alero, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_alero}' en la posición Alero (SF):")
+    st.write(df_alero[["Jugador", "Posición", perfil_alero]])
+
+# Para Ala-Pívot
+if perfil_ala_pivot != "Selecciona un perfil":
+    df_ala_pivot = df_filtrado[df_filtrado["Posición"] == "Ala-Pívot (PF)"].sort_values(perfil_ala_pivot, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_ala_pivot}' en la posición Ala-Pívot (PF):")
+    st.write(df_ala_pivot[["Jugador", "Posición", perfil_ala_pivot]])
+
+# Para Pívot
+if perfil_pivot != "Selecciona un perfil":
+    df_pivot = df_filtrado[df_filtrado["Posición"] == "Pívot (C)"].sort_values(perfil_pivot, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_pivot}' en la posición Pívot (C):")
+    st.write(df_pivot[["Jugador", "Posición", perfil_pivot]])
