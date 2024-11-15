@@ -167,7 +167,7 @@ def calcular_percentil(df, columna, posicion):
     # Calcular el percentil de la columna para los jugadores en esa posición
     return np.percentile(df_posicion[columna], 50) if len(df_posicion) > 0 else 0
 
-# Función para calcular la puntuación de cada perfil usando percentiles
+# Función para calcular la puntuación de cada perfil usando percentiles, normalizado a 0-100
 def calcular_puntuacion_percentil(row, perfil, posicion):
     puntuacion = 0
     for stat, peso in perfil.items():
@@ -175,8 +175,8 @@ def calcular_puntuacion_percentil(row, perfil, posicion):
             # Obtener el percentil para esa estadística y la posición
             percentil = calcular_percentil(df, stat, posicion)
             valor = row[stat]  # Obtener el valor de la estadística para ese jugador
-            # Ajustar el valor según el percentil
-           puntuacion = ((valor / percentil) * peso * 100) if percentil != 0 else 0  # Evitar división por ceroo
+            # Ajustar el valor según el percentil y normalizar a 0-100
+            puntuacion += ((valor / percentil) * peso * 100) if percentil != 0 else 0  # Evitar división por cero
     return puntuacion
 
 # Filtro de mínimo de minutos
