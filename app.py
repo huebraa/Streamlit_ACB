@@ -1,43 +1,53 @@
-import streamlit as st
 import pandas as pd
 
-# Función para cargar los datos
-@st.cache
-def cargar_datos():
-    return pd.read_csv("estadisticas_completas.csv")
+# Cargar datos
+df = pd.read_csv("estadisticas_completas.csv")
 
-# Cargar los datos
-df = cargar_datos()
-
-# Mapeo de nombres de las columnas para que se vean en español
+# Renombrar las columnas a español si no se ha hecho
 columnas_espanol = {
     "MIN": "Minutos",
-    "Posición": "Posición"
+    "AST%": "Asistencias",
+    "USG%": "Uso",
+    "PPR": "Pases_por_posicion",
+    "STL%": "Robos",
+    "eFG%": "Porcentaje_Tiro_Campo",
+    "3P%": "Porcentaje_3P"
 }
 
-# Renombrar las columnas
 df = df.rename(columns=columnas_espanol)
 
-# Título de la aplicación
-st.title("Estadísticas de Jugadores - Liga ACB")
+# Crear una columna de perfil para el base (PG) con pesos para cada estadística
+def calcular_perfil_base(row):
+    # Pesos definidos previamente
+    pesos = {
+        "Asistencias": 0.30,
+        "Uso": 0.15,
+        "Pases_por_posicion": 0.20,
+        "Robos": 0.10,
+        "Porcentaje_Tiro_Campo": 0.10,
+        "Porcentaje_3P": 0.10
+    }
+    
+    # Calculamos el perfil del jugador para la posición Base (PG)
+    perfil = (
+        row["Asistencias"] * pesos["Asistencias"] +
+        row["Uso"] * pesos["Uso"] +
+        row["Pases_por_posicion"] * pesos["Pases_por_posicion"] +
+        row["Robos"] * pesos["Robos"] +
+        row["Porcentaje_Tiro_Campo"] * pesos["Porcentaje_Tiro_Campo"] +
+        row["Porcentaje_3P"] * pesos["Porcentaje_3P"]
+    )
+    
+    return perfil
 
-# Mostrar las posiciones disponibles al principio
-posiciones = df["Posición"].unique()
-posicion = st.selectbox("Selecciona una posición:", posiciones)
+# Aplicar el cálculo del perfil
+df["Perfil_Base"] = df.apply(calcular_perfil_base, axis=1)
 
-# Mover los filtros de minutos a la barra lateral
-st.sidebar.header("Filtrar por minutos jugados")
-min_min = df["Minutos"].astype(float).min()
-min_max = df["Minutos"].astype(float).max()
-minutos = st.sidebar.slider("Filtrar por minutos jugados:", 
-                            min_value=min_min, 
-                            max_value=min_max, 
-                            value=(min_min, min_max))
+# Mostrar los mejores jugadores para la posición Base (PG) ordenados por el perfil
+df_base = df[df["Posición"] == "PG"]
+df_base_sorted = df_base.sort_values(by="Perfil_Base", ascending=False)
 
-# Aplicar los filtros
-df_filtrado = df[(df["Posición"] == posicion) & 
-                 (df["Minutos"].astype(float).between(minutos[0], minutos[1]))]
+# Mostrar los primeros jugadores
+st.write("Los mejores jugadores para la posición Base (PG) según el perfil:")
+st.dataframe(df_base_sorted[["Jugador", "Perfil_Base", "Asistencias", "Uso", "Pases_por_posicion", "Robos", "Porcentaje_Tiro_Campo", "Porcentaje_3P"]])
 
-# Mostrar los resultados filtrados en la sección principal
-st.write(f"Jugadores en la posición {posicion} con entre {minutos[0]} y {minutos[1]} minutos jugados:")
-st.dataframe(df_filtrado)
