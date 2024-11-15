@@ -72,66 +72,34 @@ perfil_two_way = {
 }
 
 # Función para calcular la puntuación de cada perfil
-def calcular_puntuacion(df, perfil):
-    puntuaciones = []
+def calcular_puntuacion(row, perfil):
+    puntuacion = 0
+    # Iterar sobre cada estadística y su peso
+    for stat, peso in perfil.items():
+        # Verificar si la estadística existe en el dataframe
+        if stat in row:
+            try:
+                valor = float(row[stat])
+                puntuacion += valor * peso
+            except ValueError:
+                st.write(f"Advertencia: No se pudo convertir el valor de {stat} para el jugador {row['Jugador']}. Valor: {row[stat]}")
+        else:
+            st.write(f"Advertencia: La columna {stat} no se encuentra en la fila del jugador {row['Jugador']}")
     
-    # Iterar sobre cada jugador en el dataframe
-    for index, row in df.iterrows():
-        puntuacion = 0
-        # Iterar sobre cada estadística y su peso
-        for stat, peso in perfil.items():
-            # Verificar si la estadística existe en el dataframe
-            if stat in row:
-                # Asegurarse de que el valor es numérico (conversión a float)
-                try:
-                    valor = float(row[stat])
-                    puntuacion += valor * peso
-                except ValueError:
-                    st.write(f"Advertencia: No se pudo convertir el valor de {stat} para el jugador {row['Jugador']}. Valor: {row[stat]}")
-            else:
-                st.write(f"Advertencia: La columna {stat} no se encuentra en la fila del jugador {row['Jugador']}")
-        
-        # Agregar la puntuación calculada para el jugador
-        puntuaciones.append(puntuacion)
-    
-    return puntuaciones
+    return puntuacion
 
-# Calcular puntuaciones para cada perfil
-st.write("Calculando puntuaciones para los perfiles...")
+# Filtrar solo para "Facundo Campazzo"
+df_facundo = df[df["Jugador"] == "Facundo Campazzo"]
 
-# Crear las columnas de puntuaciones para cada perfil
-try:
-    df_base["Puntuacion Pass-First"] = calcular_puntuacion(df_base, perfil_pass_first)
-    df_base["Puntuacion Scorer"] = calcular_puntuacion(df_base, perfil_scorer)
-    df_base["Puntuacion Two-Way"] = calcular_puntuacion(df_base, perfil_two_way)
-except Exception as e:
-    st.write(f"Error calculando las puntuaciones: {e}")
+# Verificar que se tiene el jugador en el DataFrame
+if df_facundo.empty:
+    st.write("No se encontró a Facundo Campazzo en el dataset.")
+else:
+    # Calcular las puntuaciones para los perfiles
+    df_facundo["Puntuacion Pass-First"] = df_facundo.apply(lambda row: calcular_puntuacion(row, perfil_pass_first), axis=1)
+    df_facundo["Puntuacion Scorer"] = df_facundo.apply(lambda row: calcular_puntuacion(row, perfil_scorer), axis=1)
+    df_facundo["Puntuacion Two-Way"] = df_facundo.apply(lambda row: calcular_puntuacion(row, perfil_two_way), axis=1)
 
-# Verificar que las puntuaciones se calculan correctamente
-st.write("Comprobando las puntuaciones calculadas para algunos jugadores:")
-st.write(df_base[["Jugador", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way"]].head(10))
-
-# Filtros adicionales ya existentes para la aplicación
-posiciones = df["Posición"].unique()
-posicion = st.selectbox("Selecciona una posición:", posiciones)
-
-# Mover los filtros de minutos a la barra lateral
-st.sidebar.header("Filtrar por minutos jugados")
-min_min = df["Minutos"].astype(float).min()
-min_max = df["Minutos"].astype(float).max()
-minutos = st.sidebar.slider("Filtrar por minutos jugados:", 
-                            min_value=min_min, 
-                            max_value=min_max, 
-                            value=(min_min, min_max))
-
-# Aplicar los filtros
-df_filtrado = df[(df["Posición"] == posicion) & 
-                 (df["Minutos"].astype(float).between(minutos[0], minutos[1]))]
-
-# Mostrar los resultados filtrados en la sección principal
-st.write(f"Jugadores en la posición {posicion} con entre {minutos[0]} y {minutos[1]} minutos jugados:")
-st.dataframe(df_filtrado)
-
-# Mostrar la tabla completa con las puntuaciones para cada jugador
-st.write("Tabla completa con las puntuaciones de los jugadores:")
-st.dataframe(df_base[["Jugador", "Posición", "Minutos", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way"]])
+    # Mostrar las puntuaciones calculadas para Facundo Campazzo
+    st.write("Puntuaciones de Facundo Campazzo según los perfiles:")
+    st.write(df_facundo[["Jugador", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way"]])
