@@ -19,8 +19,11 @@ st.title("Estadísticas Avanzadas - Liga ACB")
 st.write("Visualizando las estadísticas de los jugadores:")
 st.dataframe(df.head())  # Mostrar las primeras filas para verificar los datos
 
-# Filtro por posición
+# Mostrar todas las posiciones
 posiciones = df["Posición"].unique()
+st.write("Posiciones disponibles en los datos:", posiciones)
+
+# Filtro por posición
 posicion = st.selectbox("Selecciona una posición:", posiciones)
 
 # Filtro por minutos jugados (usando la columna correcta 'MIN')
@@ -38,10 +41,4 @@ df_filtrado = df[(df["Posición"] == posicion) &
 # Mostrar los resultados filtrados
 st.write(f"Jugadores en la posición {posicion} con entre {minutos[0]} y {minutos[1]} minutos jugados:")
 st.dataframe(df_filtrado)
-
-# Mostrar estadísticas agregadas
-st.write("Estadísticas agregadas:")
-st.write(f"Promedio de puntos por jugador: {df_filtrado['Puntos'].astype(float).mean():.2f}")
-st.write(f"Promedio de rebotes por jugador: {df_filtrado['Rebotes'].astype(float).mean():.2f}")
-st.write(f"Promedio de asistencias por jugador: {df_filtrado['Asistencias'].astype(float).mean():.2f}")
 
