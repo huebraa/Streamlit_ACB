@@ -1,96 +1,44 @@
 import streamlit as st
 import pandas as pd
-import requests
-from bs4 import BeautifulSoup
 
-# Función para descargar los datos de la página web
-def descargar_datos(url):
-    # Realizamos la solicitud HTTP a la página
-    response = requests.get(url)
-    
-    # Si la solicitud fue exitosa
-    if response.status_code == 200:
-        # Usamos BeautifulSoup para parsear el HTML
-        soup = BeautifulSoup(response.text, 'html.parser')
-        
-        # Encontrar la tabla de estadísticas (identificada por la clase 'dataTable')
-        table = soup.find('table', {'class': 'dataTable'})
-        
-        # Extraer las filas de la tabla
-        rows = table.find_all('tr')
-        
-        # Extraer los encabezados de las columnas
-        headers = [header.text.strip() for header in rows[0].find_all('th')]
-        
-        # Extraer los datos de cada fila
-        data = []
-        for row in rows[1:]:
-            columns = row.find_all('td')
-            if len(columns) > 1:
-                data.append([column.text.strip() for column in columns])
+# Función para cargar los datos
+@st.cache
+def cargar_datos():
+    return pd.read_csv("estadisticas_completas.csv")
 
-        # Convertimos los datos en un DataFrame de pandas
-        df = pd.DataFrame(data, columns=headers)
-        return df
-    else:
-        st.error("No se pudo obtener los datos.")
-        return pd.DataFrame()
+# Cargar los datos
+df = cargar_datos()
 
-# URLs de las estadísticas de cada posición
-url_base = 'https://basketball.realgm.com/international/league/4/Spanish-ACB/stats/2025/Advanced_Stats/Qualified/All/per/'
+# Título de la aplicación
+st.title("Estadísticas Avanzadas - Liga ACB")
 
-urls_posiciones = {
-    'Base (PG)': url_base + 'PG/desc/1/Regular_Season',
-    'Escolta (SG)': url_base + 'SG/desc/1/Regular_Season',
-    'Alero (SF)': url_base + 'SF/desc/1/Regular_Season',
-    'Ala-Pívot (PF)': url_base + 'PF/desc/1/Regular_Season',
-    'Pívot (C)': url_base + 'C/desc/1/Regular_Season'
-}
+# Mostrar los primeros registros
+st.write("Visualizando las estadísticas de los jugadores:")
+st.dataframe(df.head())  # Mostrar las primeras filas para verificar los datos
 
-# URL para los minutos jugados (Totales)
-url_totales = 'https://basketball.realgm.com/international/league/4/Spanish-ACB/stats/2025/Totals/Qualified/All/per/All/desc/1/Regular_Season'
+# Filtro por posición
+posiciones = df["Posición"].unique()
+posicion = st.selectbox("Selecciona una posición:", posiciones)
 
-# Función para combinar los datos por jugador y equipo
-def cargar_datos_completos():
-    # Descargar los datos de las posiciones
-    df_posiciones = descargar_datos(url_totales)  # Usamos los totales por ahora
-    df_minutos = descargar_datos(url_totales)  # Puedes agregar otro dataset si lo tienes
-    
-    # Aseguramos que los nombres de las columnas coincidan (usaremos 'Player' y 'Team' para combinarlos)
-    df_posiciones['Player'] = df_posiciones['Player'].str.strip()
-    df_minutos['Player'] = df_minutos['Player'].str.strip()
+# Filtro por minutos jugados
+min_min = df["Minutos"].astype(float).min()
+min_max = df["Minutos"].astype(float).max()
+minutos = st.slider("Filtrar por minutos jugados:", 
+                    min_value=min_min, 
+                    max_value=min_max, 
+                    value=(min_min, min_max))
 
-    # Unir los DataFrames por el nombre del jugador y equipo
-    df_completo = pd.merge(df_posiciones, df_minutos, on=['Player', 'Team'], how='inner')
-    
-    return df_completo
+# Aplicar los filtros
+df_filtrado = df[(df["Posición"] == posicion) & 
+                 (df["Minutos"].astype(float).between(minutos[0], minutos[1]))]
 
-# Crear la aplicación Streamlit
-st.title("Estadísticas de Jugadores ACB - 2025")
+# Mostrar los resultados filtrados
+st.write(f"Jugadores en la posición {posicion} con entre {minutos[0]} y {minutos[1]} minutos jugados:")
+st.dataframe(df_filtrado)
 
-# Selección de posición
-posiciones = ["Base (PG)", "Escolta (SG)", "Alero (SF)", "Ala-Pívot (PF)", "Pívot (C)"]
-posicion = st.selectbox("Filtrar por posición:", opciones=posiciones)
-
-# Descargar los datos de la posición seleccionada
-df_posicion = descargar_datos(urls_posiciones[posicion])
-
-# Cargar datos completos (posición + minutos)
-df_completo = cargar_datos_completos()
-
-# Mostrar los datos de la posición seleccionada
-st.subheader(f"Estadísticas de Jugadores - {posicion}")
-st.dataframe(df_posicion)
-
-# Mostrar los datos completos con estadísticas combinadas
-st.subheader("Estadísticas Combinadas de Jugadores")
-st.dataframe(df_completo)
-
-# Opción para filtrar las estadísticas
-st.sidebar.header("Filtros de estadísticas")
-columnas_filtro = st.sidebar.multiselect("Selecciona las estadísticas a mostrar", df_completo.columns.tolist())
-
-if columnas_filtro:
-    st.subheader("Estadísticas Filtradas")
-    st.dataframe(df_completo[columnas_filtro])
+# Mostrar estadísticas agregadas
+st.write("Estadísticas agregadas:")
+st.write(f"Promedio de puntos por jugador: {df_filtrado['Puntos'].astype(float).mean():.2f}")
+st.write(f"Promedio de rebotes por jugador: {df_filtrado['Rebotes'].astype(float).mean():.2f}")
+st.write(f"Promedio de asistencias por jugador: {df_filtrado['Asistencias'].astype(float).mean():.2f}")
 
