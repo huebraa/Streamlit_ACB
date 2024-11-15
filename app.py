@@ -43,6 +43,13 @@ df = df.rename(columns=columnas_espanol)
 # Filtrar solo a jugadores en la posición de base (PG)
 df_base = df[df["Posición"] == "PG"]
 
+# Verificar las columnas y los primeros registros del dataframe
+st.write("Columnas disponibles en el dataframe:")
+st.write(df.columns)
+
+# Verificar las primeras filas para asegurarnos de que los datos están cargados correctamente
+st.write(df.head())
+
 # Definir los pesos para cada perfil
 perfil_pass_first = {
     "AST%": 0.30,
@@ -77,15 +84,23 @@ def calcular_puntuacion(df, perfil):
     for index, row in df.iterrows():
         puntuacion = 0
         for stat, peso in perfil.items():
-            if stat in row:
+            if stat in row:  # Verificar si la estadística está en la fila
                 puntuacion += row[stat] * peso
+            else:
+                st.write(f"Advertencia: La columna {stat} no se encuentra en la fila del jugador {row['Jugador']}")
         puntuaciones.append(puntuacion)
     return puntuaciones
 
 # Calcular puntuaciones para cada perfil
-df_base["Puntuacion Pass-First"] = calcular_puntuacion(df_base, perfil_pass_first)
-df_base["Puntuacion Scorer"] = calcular_puntuacion(df_base, perfil_scorer)
-df_base["Puntuacion Two-Way"] = calcular_puntuacion(df_base, perfil_two_way)
+st.write("Calculando puntuaciones para los perfiles...")
+
+# Añadir una verificación para saber si el cálculo está funcionando
+try:
+    df_base["Puntuacion Pass-First"] = calcular_puntuacion(df_base, perfil_pass_first)
+    df_base["Puntuacion Scorer"] = calcular_puntuacion(df_base, perfil_scorer)
+    df_base["Puntuacion Two-Way"] = calcular_puntuacion(df_base, perfil_two_way)
+except Exception as e:
+    st.write(f"Error calculando las puntuaciones: {e}")
 
 # Mostrar los 5 mejores jugadores según cada perfil (solo mostrar nombre y puntuación)
 top_5_pass_first = df_base.nlargest(5, "Puntuacion Pass-First")[["Jugador", "Puntuacion Pass-First"]]
