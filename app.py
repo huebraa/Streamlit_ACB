@@ -13,51 +13,64 @@ df = cargar_datos()
 columnas_espanol = {
     "MIN": "Minutos",
     "Posición": "Posición",
-    "TS%": "Eficiencia TS",
-    "eFG%": "Eficiencia eFG",
-    "AST%": "Asistencias %",
-    "TOV%": "Pérdidas de balón %",
-    "STL%": "Robos %",
-    "USG%": "Uso de la posesión",
-    "PER": "Eficiencia PER",
+    "TS%": "TS%",
+    "eFG%": "eFG%",
+    "ORB%": "ORB%",
+    "DRB%": "DRB%",
+    "TRB%": "TRB%",
+    "AST%": "AST%",
+    "TOV%": "TOV%",
+    "STL%": "STL%",
+    "BLK%": "BLK%",
+    "USG%": "USG%",
+    "PPR": "PPR",
+    "PPS": "PPS",
+    "ORtg": "ORtg",
+    "DRtg": "DRtg",
+    "eDiff": "eDiff",
+    "FIC": "FIC",
+    "PER": "PER",
 }
 
 # Renombrar las columnas
 df = df.rename(columns=columnas_espanol)
 
-# Filtrar para la posición de Base (PG)
+# Filtro por la posición Base (PG)
 df_base = df[df["Posición"] == "PG"]
 
-# Pesos asignados a cada estadística para la posición de Base (PG)
+# Asignar pesos para cada estadística
 pesos = {
-    "Asistencias %": 0.25,
-    "Uso de la posesión": 0.20,
-    "Eficiencia TS": 0.15,
-    "Robos %": 0.15,
-    "Pérdidas de balón %": 0.10,
-    "Eficiencia PER": 0.10,
-    "Minutos": 0.05,
+    "AST%": 0.30,
+    "TS%": 0.25,
+    "TOV%": -0.20,
+    "STL%": 0.15,
+    "USG%": 0.10,
 }
 
-# Normalizar las estadísticas de cada jugador para calcular un perfil
-df_base["Perfil"] = (
-    df_base["Asistencias %"] * pesos["Asistencias %"] +
-    df_base["Uso de la posesión"] * pesos["Uso de la posesión"] +
-    df_base["Eficiencia TS"] * pesos["Eficiencia TS"] +
-    df_base["Robos %"] * pesos["Robos %"] +
-    df_base["Pérdidas de balón %"] * -pesos["Pérdidas de balón %"] +  # Penalizar pérdidas
-    df_base["Eficiencia PER"] * pesos["Eficiencia PER"] +
-    df_base["Minutos"] * pesos["Minutos"]
-)
+# Función para calcular el puntaje del jugador
+def calcular_puntaje(row, pesos):
+    puntaje = (row["AST%"] * pesos["AST%"] +
+               row["TS%"] * pesos["TS%"] +
+               row["TOV%"] * pesos["TOV%"] +
+               row["STL%"] * pesos["STL%"] +
+               row["USG%"] * pesos["USG%"])
+    return puntaje
 
-# Ordenar a los mejores jugadores basados en el perfil
-df_base = df_base.sort_values("Perfil", ascending=False)
+# Aplicar la función a cada jugador para calcular su puntaje
+df_base["Puntaje"] = df_base.apply(lambda row: calcular_puntaje(row, pesos), axis=1)
 
-# Título de la aplicación
-st.title("Perfil de Jugadores - Base (PG)")
+# Obtener los 5 mejores jugadores según su puntaje
+df_mejores = df_base.nlargest(5, "Puntaje")
 
-# Mostrar los resultados de los jugadores de base ordenados por el perfil
-st.write("Los mejores jugadores en la posición de Base (PG) según el perfil:")
-st.dataframe(df_base[['Jugador', 'Equipo', 'Perfil', 'Asistencias %', 'Uso de la posesión', 'Eficiencia TS', 'Robos %', 'Pérdidas de balón %', 'Eficiencia PER']])
+# Mostrar los resultados
+st.title("Mejores Jugadores Base (PG) según Perfil")
 
+# Muestra los jugadores con su puntaje
+st.write("Los 5 mejores jugadores base (PG) según el perfil calculado son:")
 
+# Mostrar tabla de los 5 mejores jugadores
+st.dataframe(df_mejores[["Jugador", "Equipo", "TS%", "AST%", "TOV%", "STL%", "USG%", "Puntaje"]])
+
+# Mostrar nombre y puntaje de los 5 mejores jugadores
+for index, row in df_mejores.iterrows():
+    st.write(f"{row['Jugador']} - Puntaje: {row['Puntaje']:.2f}")
