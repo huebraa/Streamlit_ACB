@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # Función para cargar los datos
 @st.cache
@@ -209,8 +210,18 @@ if posicion_seleccionada != "Todas las posiciones" and perfil_seleccionado != "S
     # Aplicar el cálculo de puntuación
     df_filtrado_posicion["Puntuacion"] = df_filtrado_posicion.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
     
-    # Mostrar los 5 mejores jugadores según la puntuación
-    st.write(f"Los 5 mejores jugadores para el perfil {perfil_seleccionado} en la posición {posicion_seleccionada}:")
+    # Mostrar los 5 mejores jugadores según el perfil y posición seleccionados
+    st.write(f"Los 5 mejores jugadores en la posición {posicion_seleccionada} para el perfil {perfil_seleccionado}:")
     st.write(df_filtrado_posicion[["Jugador", "Puntuacion"]].sort_values(by="Puntuacion", ascending=False).head(5))
+
+    # Mostrar gráfico
+    st.write("Gráfico de las puntuaciones de los 5 mejores jugadores:")
+    top_5 = df_filtrado_posicion[["Jugador", "Puntuacion"]].sort_values(by="Puntuacion", ascending=False).head(5)
+    fig, ax = plt.subplots()
+    ax.bar(top_5["Jugador"], top_5["Puntuacion"])
+    ax.set_xlabel('Jugador')
+    ax.set_ylabel('Puntuación')
+    ax.set_title(f"Top 5 jugadores para el perfil {perfil_seleccionado} en la posición {posicion_seleccionada}")
+    st.pyplot(fig)
 else:
     st.write("Selecciona una posición y un perfil para ver los resultados.")
