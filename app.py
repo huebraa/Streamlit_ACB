@@ -2,24 +2,8 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Título de la aplicación
-st.title("Análisis de Jugadores de Baloncesto por Perfil y Posición")
-
-# Descripción de la aplicación
-st.write("""
-    Esta aplicación permite analizar las estadísticas de jugadores de baloncesto de la temporada 2023-2024. 
-    Puedes filtrar los jugadores según los minutos jugados y explorar sus puntuaciones en diferentes perfiles de posición, 
-    como Base, Escolta, Alero, Ala-Pívot y Pívot. 
-    Además, puedes ver los mejores jugadores para cada perfil seleccionado, comparando sus estadísticas clave como puntos, 
-    asistencias, rebotes, y más.
-    
-    Los perfiles incluyen especializaciones como 'Pass-First', 'Scorer', 'Two-Way', entre otros, que definen el estilo de juego 
-    de cada jugador y cómo se espera que contribuyan al equipo. ¡Explora y encuentra a los jugadores que mejor se adapten a 
-    tus necesidades de equipo!
-""")
-
 # Función para cargar los datos
-@st.cache_data
+@st.cache
 def cargar_datos():
     return pd.read_csv("estadisticas_completas.csv")
 
@@ -232,10 +216,38 @@ perfil_ala_pivot = st.sidebar.selectbox("Perfil Ala-Pívot (PF)", ["Selecciona u
 # Filtrar por Pívot
 perfil_pivot = st.sidebar.selectbox("Perfil Pívot (C)", ["Selecciona un perfil"] + list(perfiles_posiciones["Pívot (C)"].keys()))
 
-# Mostramos los mejores jugadores por cada perfil seleccionado
-for perfil_nombre, perfil in [("Base", perfil_base), ("Escolta", perfil_escolta), ("Alero", perfil_alero), 
-                              ("Ala-Pívot", perfil_ala_pivot), ("Pívot", perfil_pivot)]:
-    if perfil != "Selecciona un perfil":
-        st.subheader(f"Mejores jugadores para el perfil de {perfil_nombre}")
-        mejores_jugadores = df_filtrado[["Jugador", perfil]].sort_values(by=perfil, ascending=False).head(5)
-        st.write(mejores_jugadores)
+# Mostrar la tabla general de puntuaciones de los perfiles (sin filtros de posición ni perfil)
+st.write("Tabla General de Jugadores con sus puntuaciones por perfil:")
+perfil_columnas = [col for col in df_filtrado.columns if col not in ["Jugador", "Posición", "Minutos"]]  # Filtrar columnas de puntuaciones
+st.write(df_filtrado[["Jugador", "Posición"] + perfil_columnas])
+
+# Mostrar los 5 mejores jugadores para cada posición y perfil seleccionado
+# Para Base
+if perfil_base != "Selecciona un perfil":
+    df_base = df_filtrado[df_filtrado["Posición"] == "Base (PG)"].sort_values(perfil_base, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_base}' en la posición Base (PG):")
+    st.write(df_base[["Jugador", "Posición", perfil_base]])
+
+# Para Escolta
+if perfil_escolta != "Selecciona un perfil":
+    df_escolta = df_filtrado[df_filtrado["Posición"] == "Escolta (SG)"].sort_values(perfil_escolta, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_escolta}' en la posición Escolta (SG):")
+    st.write(df_escolta[["Jugador", "Posición", perfil_escolta]])
+
+# Para Alero
+if perfil_alero != "Selecciona un perfil":
+    df_alero = df_filtrado[df_filtrado["Posición"] == "Alero (SF)"].sort_values(perfil_alero, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_alero}' en la posición Alero (SF):")
+    st.write(df_alero[["Jugador", "Posición", perfil_alero]])
+
+# Para Ala-Pívot
+if perfil_ala_pivot != "Selecciona un perfil":
+    df_ala_pivot = df_filtrado[df_filtrado["Posición"] == "Ala-Pívot (PF)"].sort_values(perfil_ala_pivot, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_ala_pivot}' en la posición Ala-Pívot (PF):")
+    st.write(df_ala_pivot[["Jugador", "Posición", perfil_ala_pivot]])
+
+# Para Pívot
+if perfil_pivot != "Selecciona un perfil":
+    df_pivot = df_filtrado[df_filtrado["Posición"] == "Pívot (C)"].sort_values(perfil_pivot, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_pivot}' en la posición Pívot (C):")
+    st.write(df_pivot[["Jugador", "Posición", perfil_pivot]])
