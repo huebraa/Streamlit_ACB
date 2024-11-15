@@ -44,7 +44,7 @@ df = df.rename(columns=columnas_espanol)
 df_base = df[df["Posición"] == "PG"]
 
 # Verificar las primeras filas para asegurarnos de que los datos están cargados correctamente
-st.write(df.head())
+st.write("Datos cargados: ", df.head())
 
 # Definir los pesos para cada perfil
 perfil_pass_first = {
@@ -85,9 +85,10 @@ def calcular_puntuacion(df, perfil):
         for stat, peso in perfil.items():
             # Verificar si la estadística existe en el dataframe
             if stat in row:
-                # Sumar la puntuación correspondiente (asegurarse de que sea un número)
+                # Asegurarse de que el valor es numérico (conversión a float)
                 try:
-                    puntuacion += float(row[stat]) * peso
+                    valor = float(row[stat])
+                    puntuacion += valor * peso
                 except ValueError:
                     st.write(f"Advertencia: No se pudo convertir el valor de {stat} para el jugador {row['Jugador']}. Valor: {row[stat]}")
             else:
@@ -107,6 +108,12 @@ try:
     df_base["Puntuacion Two-Way"] = calcular_puntuacion(df_base, perfil_two_way)
 except Exception as e:
     st.write(f"Error calculando las puntuaciones: {e}")
+
+# Mostrar las puntuaciones calculadas para cada perfil
+st.write("Puntuaciones calculadas para cada jugador según los perfiles:")
+
+# Verificar los valores de las puntuaciones
+st.write(df_base[["Jugador", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way"]])
 
 # Mostrar los 5 mejores jugadores según cada perfil (solo mostrar nombre y puntuación)
 top_5_pass_first = df_base.nlargest(5, "Puntuacion Pass-First")[["Jugador", "Puntuacion Pass-First"]]
