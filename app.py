@@ -87,12 +87,12 @@ df_base["Puntuacion Pass-First"] = calcular_puntuacion(df_base, perfil_pass_firs
 df_base["Puntuacion Scorer"] = calcular_puntuacion(df_base, perfil_scorer)
 df_base["Puntuacion Two-Way"] = calcular_puntuacion(df_base, perfil_two_way)
 
-# Mostrar los 5 mejores jugadores según cada perfil
-top_5_pass_first = df_base.nlargest(5, "Puntuacion Pass-First")
-top_5_scorer = df_base.nlargest(5, "Puntuacion Scorer")
-top_5_two_way = df_base.nlargest(5, "Puntuacion Two-Way")
+# Mostrar los 5 mejores jugadores según cada perfil (solo mostrar nombre y puntuación)
+top_5_pass_first = df_base.nlargest(5, "Puntuacion Pass-First")[["Jugador", "Puntuacion Pass-First"]]
+top_5_scorer = df_base.nlargest(5, "Puntuacion Scorer")[["Jugador", "Puntuacion Scorer"]]
+top_5_two_way = df_base.nlargest(5, "Puntuacion Two-Way")[["Jugador", "Puntuacion Two-Way"]]
 
-# Mostrar los resultados
+# Mostrar los resultados en la parte principal
 st.subheader("Top 5 Jugadores - Pass-First PG")
 st.dataframe(top_5_pass_first)
 
@@ -101,3 +101,24 @@ st.dataframe(top_5_scorer)
 
 st.subheader("Top 5 Jugadores - Two-Way PG")
 st.dataframe(top_5_two_way)
+
+# Filtros adicionales ya existentes para la aplicación
+posiciones = df["Posición"].unique()
+posicion = st.selectbox("Selecciona una posición:", posiciones)
+
+# Mover los filtros de minutos a la barra lateral
+st.sidebar.header("Filtrar por minutos jugados")
+min_min = df["Minutos"].astype(float).min()
+min_max = df["Minutos"].astype(float).max()
+minutos = st.sidebar.slider("Filtrar por minutos jugados:", 
+                            min_value=min_min, 
+                            max_value=min_max, 
+                            value=(min_min, min_max))
+
+# Aplicar los filtros
+df_filtrado = df[(df["Posición"] == posicion) & 
+                 (df["Minutos"].astype(float).between(minutos[0], minutos[1]))]
+
+# Mostrar los resultados filtrados en la sección principal
+st.write(f"Jugadores en la posición {posicion} con entre {minutos[0]} y {minutos[1]} minutos jugados:")
+st.dataframe(df_filtrado)
