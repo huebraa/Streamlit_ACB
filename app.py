@@ -1,4 +1,4 @@
-este es el codigo que tengo, quiero acabar haciendo que muestres la imagen que te he subido en vez de la tabla:
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
