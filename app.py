@@ -40,43 +40,97 @@ columnas_espanol = {
 # Renombrar las columnas
 df = df.rename(columns=columnas_espanol)
 
-# Verificamos los primeros registros para ver cómo están las posiciones
-st.write(df["Posición"].unique())  # Verifica los valores únicos en la columna "Posición"
+# Filtrar solo a jugadores en la posición de base (PG)
+df_base = df[df["Posición"] == "PG"]
 
-# Filtrar solo a jugadores en la posición de base (PG), eliminando posibles espacios y normalizando
-df_base = df[df["Posición"].str.strip().str.upper() == "PG"]
+# Verificar las primeras filas para asegurarnos de que los datos están cargados correctamente
+st.write(df.head())
 
-# Si no hay datos, mostramos un mensaje y detenemos la ejecución
-if df_base.empty:
-    st.write("No se encontraron jugadores en la posición de base.")
-else:
-    # Verificamos que haya datos de bases
-    st.write(df_base.head())  # Muestra las primeras filas para verificar que hay datos
-    
-    # Definir los pesos para el perfil de Base Pass-First
-    perfil_pass_first = {
-        "AST%": 0.30,
-        "AST%/USG%": 0.25,
-        "STL%": 0.15,
-        "eFG%": 0.15,
-        "PTS": 0.10,
-        "TOV%": 0.05
-    }
+# Definir los pesos para cada perfil
+perfil_pass_first = {
+    "AST%": 0.30,
+    "AST%/USG%": 0.25,
+    "STL%": 0.15,
+    "eFG%": 0.15,
+    "PTS": 0.10,
+    "TOV%": 0.05
+}
 
-    # Función para calcular la puntuación de un jugador
-    def calcular_puntuacion(row, perfil):
+perfil_scorer = {
+    "PTS": 0.40,
+    "3P%": 0.25,
+    "eFG%": 0.15,
+    "AST%": 0.10,
+    "STL%": 0.05,
+    "TOV%": 0.05
+}
+
+perfil_two_way = {
+    "AST%": 0.25,
+    "STL%": 0.25,
+    "PTS": 0.15,
+    "TRB%": 0.15,
+    "eFG%": 0.10,
+    "TOV%": 0.10
+}
+
+# Función para calcular la puntuación de cada perfil
+def calcular_puntuacion(df, perfil):
+    puntuaciones = []
+    for index, row in df.iterrows():
         puntuacion = 0
         for stat, peso in perfil.items():
-            if stat in row:
+            if stat in row:  # Verificar si la estadística está en la fila
                 puntuacion += row[stat] * peso
-        return puntuacion
+            else:
+                st.write(f"Advertencia: La columna {stat} no se encuentra en la fila del jugador {row['Jugador']}")
+        puntuaciones.append(puntuacion)
+    return puntuaciones
 
-    # Seleccionar un jugador específico para ver su puntuación
-    jugador_seleccionado = df_base.iloc[0]  # Tomamos el primer jugador de la lista
+# Calcular puntuaciones para cada perfil
+st.write("Calculando puntuaciones para los perfiles...")
 
-    # Calcular la puntuación del jugador seleccionado
-    puntuacion_pass_first = calcular_puntuacion(jugador_seleccionado, perfil_pass_first)
+# Añadir una verificación para saber si el cálculo está funcionando
+try:
+    df_base["Puntuacion Pass-First"] = calcular_puntuacion(df_base, perfil_pass_first)
+    df_base["Puntuacion Scorer"] = calcular_puntuacion(df_base, perfil_scorer)
+    df_base["Puntuacion Two-Way"] = calcular_puntuacion(df_base, perfil_two_way)
+except Exception as e:
+    st.write(f"Error calculando las puntuaciones: {e}")
 
-    # Mostrar el jugador y su puntuación
-    st.write(f"Jugador seleccionado: {jugador_seleccionado['Jugador']}")
-    st.write(f"Puntuación para el perfil Pass-First: {puntuacion_pass_first:.2f}")
+# Mostrar los 5 mejores jugadores según cada perfil (solo mostrar nombre y puntuación)
+top_5_pass_first = df_base.nlargest(5, "Puntuacion Pass-First")[["Jugador", "Puntuacion Pass-First"]]
+top_5_scorer = df_base.nlargest(5, "Puntuacion Scorer")[["Jugador", "Puntuacion Scorer"]]
+top_5_two_way = df_base.nlargest(5, "Puntuacion Two-Way")[["Jugador", "Puntuacion Two-Way"]]
+
+# Mostrar los resultados en la parte principal
+st.subheader("Top 5 Jugadores - Pass-First PG")
+st.dataframe(top_5_pass_first)
+
+st.subheader("Top 5 Jugadores - Scoring PG")
+st.dataframe(top_5_scorer)
+
+st.subheader("Top 5 Jugadores - Two-Way PG")
+st.dataframe(top_5_two_way)
+
+# Filtros adicionales ya existentes para la aplicación
+posiciones = df["Posición"].unique()
+posicion = st.selectbox("Selecciona una posición:", posiciones)
+
+# Mover los filtros de minutos a la barra lateral
+st.sidebar.header("Filtrar por minutos jugados")
+min_min = df["Minutos"].astype(float).min()
+min_max = df["Minutos"].astype(float).max()
+minutos = st.sidebar.slider("Filtrar por minutos jugados:", 
+                            min_value=min_min, 
+                            max_value=min_max, 
+                            value=(min_min, min_max))
+
+# Aplicar los filtros
+df_filtrado = df[(df["Posición"] == posicion) & 
+                 (df["Minutos"].astype(float).between(minutos[0], minutos[1]))]
+
+# Mostrar los resultados filtrados en la sección principal
+st.write(f"Jugadores en la posición {posicion} con entre {minutos[0]} y {minutos[1]} minutos jugados:")
+st.dataframe(df_filtrado)
+
