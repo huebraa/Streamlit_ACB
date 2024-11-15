@@ -30,47 +30,74 @@ columnas_espanol = {
     "eDiff": "eDiff",
     "FIC": "FIC",
     "PER": "PER",
+    "PTS": "PTS",
+    "FG%": "FG%",
+    "3P%": "3P%",
+    "FT%": "FT%",
+    "PF": "PF"
 }
 
 # Renombrar las columnas
 df = df.rename(columns=columnas_espanol)
 
-# Filtro por la posición Base (PG)
+# Filtrar solo a jugadores en la posición de base (PG)
 df_base = df[df["Posición"] == "PG"]
 
-# Asignar pesos para cada estadística
-pesos = {
+# Definir los pesos para cada perfil
+perfil_pass_first = {
     "AST%": 0.30,
-    "TS%": 0.25,
-    "TOV%": -0.20,
+    "AST%/USG%": 0.25,
     "STL%": 0.15,
-    "USG%": 0.10,
+    "eFG%": 0.15,
+    "PTS": 0.10,
+    "TOV%": 0.05
 }
 
-# Función para calcular el puntaje del jugador
-def calcular_puntaje(row, pesos):
-    puntaje = (row["AST%"] * pesos["AST%"] +
-               row["TS%"] * pesos["TS%"] +
-               row["TOV%"] * pesos["TOV%"] +
-               row["STL%"] * pesos["STL%"] +
-               row["USG%"] * pesos["USG%"])
-    return puntaje
+perfil_scorer = {
+    "PTS": 0.40,
+    "3P%": 0.25,
+    "eFG%": 0.15,
+    "AST%": 0.10,
+    "STL%": 0.05,
+    "TOV%": 0.05
+}
 
-# Aplicar la función a cada jugador para calcular su puntaje
-df_base["Puntaje"] = df_base.apply(lambda row: calcular_puntaje(row, pesos), axis=1)
+perfil_two_way = {
+    "AST%": 0.25,
+    "STL%": 0.25,
+    "PTS": 0.15,
+    "TRB%": 0.15,
+    "eFG%": 0.10,
+    "TOV%": 0.10
+}
 
-# Obtener los 5 mejores jugadores según su puntaje
-df_mejores = df_base.nlargest(5, "Puntaje")
+# Función para calcular la puntuación de cada perfil
+def calcular_puntuacion(df, perfil):
+    puntuaciones = []
+    for index, row in df.iterrows():
+        puntuacion = 0
+        for stat, peso in perfil.items():
+            if stat in row:
+                puntuacion += row[stat] * peso
+        puntuaciones.append(puntuacion)
+    return puntuaciones
+
+# Calcular puntuaciones para cada perfil
+df_base["Puntuacion Pass-First"] = calcular_puntuacion(df_base, perfil_pass_first)
+df_base["Puntuacion Scorer"] = calcular_puntuacion(df_base, perfil_scorer)
+df_base["Puntuacion Two-Way"] = calcular_puntuacion(df_base, perfil_two_way)
+
+# Mostrar los 5 mejores jugadores según cada perfil
+top_5_pass_first = df_base.nlargest(5, "Puntuacion Pass-First")
+top_5_scorer = df_base.nlargest(5, "Puntuacion Scorer")
+top_5_two_way = df_base.nlargest(5, "Puntuacion Two-Way")
 
 # Mostrar los resultados
-st.title("Mejores Jugadores Base (PG) según Perfil")
+st.subheader("Top 5 Jugadores - Pass-First PG")
+st.dataframe(top_5_pass_first)
 
-# Muestra los jugadores con su puntaje
-st.write("Los 5 mejores jugadores base (PG) según el perfil calculado son:")
+st.subheader("Top 5 Jugadores - Scoring PG")
+st.dataframe(top_5_scorer)
 
-# Mostrar tabla de los 5 mejores jugadores
-st.dataframe(df_mejores[["Jugador", "Equipo", "TS%", "AST%", "TOV%", "STL%", "USG%", "Puntaje"]])
-
-# Mostrar nombre y puntaje de los 5 mejores jugadores
-for index, row in df_mejores.iterrows():
-    st.write(f"{row['Jugador']} - Puntaje: {row['Puntaje']:.2f}")
+st.subheader("Top 5 Jugadores - Two-Way PG")
+st.dataframe(top_5_two_way)
