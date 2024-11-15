@@ -1,3 +1,4 @@
+import numpy as np
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -257,3 +258,58 @@ if perfil_pivot != "Selecciona un perfil":
     df_pivot = df_filtrado[df_filtrado["Posición"] == "Pívot (C)"].sort_values(perfil_pivot, ascending=False).head(5)
     st.write(f"Los 5 mejores jugadores para el perfil '{perfil_pivot}' en la posición Pívot (C):")
     st.write(df_pivot[["Jugador", "Posición", perfil_pivot]])
+
+
+
+
+
+
+
+
+
+
+# Rol y perfil predeterminados
+posicion_predeterminada = "Base (PG)"
+perfil_predeterminado = "Pass-First PG"
+
+# Selección del jugador con la mejor puntuación en el perfil predeterminado
+jugador_top = df_filtrado[df_filtrado["Posición"] == posicion_predeterminada].sort_values(perfil_predeterminado, ascending=False).iloc[0]
+
+# Métricas relevantes para el perfil
+perfil_metrica = perfiles_posiciones[posicion_predeterminada][perfil_predeterminado]
+metricas = list(perfil_metrica.keys())
+pesos = list(perfil_metrica.values())
+valores = [jugador_top[metrica] for metrica in metricas]
+
+# Crear radar plot
+def radar_chart(metrics, values, title, weights=None):
+    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
+    angles = np.linspace(0, 2 * np.pi, len(metrics), endpoint=False).tolist()
+    
+    # Asegurar el cierre del radar plot
+    values += values[:1]
+    angles += angles[:1]
+
+    ax.fill(angles, values, color='blue', alpha=0.25)
+    ax.plot(angles, values, color='blue', linewidth=2, label="Jugador")
+    
+    ax.set_yticks([25, 50, 75, 100])
+    ax.set_yticklabels(['25%', '50%', '75%', '100%'], color='gray', fontsize=10)
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(metrics, fontsize=12)
+    
+    if weights:
+        for i, weight in enumerate(weights):
+            ax.text(angles[i], values[i] + 5, f"{weight:.2f}", fontsize=10, ha='center', va='center', color='red')
+
+    ax.set_title(title, fontsize=15, pad=20)
+    plt.legend()
+    plt.show()
+
+# Generar gráfico para el jugador seleccionado
+radar_chart(
+    metrics=metricas,
+    values=valores,
+    title=f"Perfil {perfil_predeterminado} - {jugador_top['Jugador']}",
+    weights=pesos
+)
