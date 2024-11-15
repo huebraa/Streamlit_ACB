@@ -21,11 +21,11 @@ df = df.rename(columns=columnas_espanol)
 # Título de la aplicación
 st.title("Estadísticas de Jugadores - Liga ACB")
 
-# Mostrar las posiciones disponibles al principio
+# Paso 1: Selección de la posición
 posiciones = df["Posición"].unique()
 posicion = st.selectbox("Selecciona una posición:", posiciones)
 
-# Filtro por minutos jugados
+# Paso 2: Filtro por minutos jugados
 min_min = df["Minutos"].astype(float).min()
 min_max = df["Minutos"].astype(float).max()
 minutos = st.slider("Filtrar por minutos jugados:", 
@@ -33,11 +33,20 @@ minutos = st.slider("Filtrar por minutos jugados:",
                     max_value=min_max, 
                     value=(min_min, min_max))
 
+# Paso 3: Selección de pesos para las estadísticas
+# Si más adelante quieres añadir más estadísticas, puedes añadir sliders aquí
+peso_minutos = st.slider("Peso de los minutos jugados (0-1)", 0.0, 1.0, 1.0)
+
 # Aplicar los filtros
 df_filtrado = df[(df["Posición"] == posicion) & 
                  (df["Minutos"].astype(float).between(minutos[0], minutos[1]))]
 
 # Mostrar los resultados filtrados
 st.write(f"Jugadores en la posición {posicion} con entre {minutos[0]} y {minutos[1]} minutos jugados:")
+
+# Mostrar el DataFrame filtrado
 st.dataframe(df_filtrado)
+
+# Mostrar los pesos seleccionados
+st.write(f"Peso de los minutos jugados: {peso_minutos}")
 
