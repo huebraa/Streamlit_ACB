@@ -1,3 +1,7 @@
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+
 # Función para cargar los datos
 @st.cache
 def cargar_datos():
