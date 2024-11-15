@@ -51,7 +51,7 @@ perfil_pass_first = {
 }
 
 perfil_scorer = {
-    "PTS": 0.40,
+    "ORtg": 0.40,
     "3P%": 0.25,
     "eFG%": 0.15,
     "AST%": 0.10,
@@ -60,9 +60,9 @@ perfil_scorer = {
 }
 
 perfil_two_way = {
-    "AST%": 0.25,
-    "STL%": 0.25,
-    "PTS": 0.15,
+    "AST%": 0.15,
+    "DRtg%": 0.35,
+    "STL%": 0.15,
     "TRB%": 0.15,
     "eFG%": 0.10,
     "TOV%": 0.10
