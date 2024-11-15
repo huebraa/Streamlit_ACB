@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Función para cargar los datos
 @st.cache
@@ -212,33 +213,23 @@ st.write("Tabla General de Jugadores con sus puntuaciones por perfil:")
 perfil_columnas = [col for col in df_filtrado.columns if col not in ["Jugador", "Posición", "Minutos"]]  # Filtrar columnas de puntuaciones
 st.write(df_filtrado[["Jugador", "Posición"] + perfil_columnas])
 
-# Mostrar los 5 mejores jugadores para cada posición y perfil seleccionado
-# Para Base
-if perfil_base != "Selecciona un perfil":
-    df_base = df_filtrado[df_filtrado["Posición"] == "Base (PG)"].sort_values(perfil_base, ascending=False).head(5)
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_base}' en la posición Base (PG):")
-    st.write(df_base[["Jugador", "Posición", perfil_base]])
+# Mostrar los 5 mejores jugadores para cada posición y perfil seleccionado en un gráfico
+def mostrar_mejores_jugadores(df_filtrado, posicion, perfil, nombre_perfil):
+    if perfil != "Selecciona un perfil":
+        df_filtrado_posicion = df_filtrado[df_filtrado["Posición"] == posicion].sort_values(perfil, ascending=False).head(5)
+        st.write(f"Los 5 mejores jugadores para el perfil '{nombre_perfil}' en la posición {posicion}:")
+        
+        # Gráfico de barras
+        fig, ax = plt.subplots(figsize=(8, 6))
+        sns.barplot(x="Jugador", y=perfil, data=df_filtrado_posicion, ax=ax)
+        ax.set_title(f"Top 5 - {nombre_perfil} en {posicion}")
+        ax.set_xlabel("Jugador")
+        ax.set_ylabel(f"Puntuación {nombre_perfil}")
+        st.pyplot(fig)
 
-# Para Escolta
-if perfil_escolta != "Selecciona un perfil":
-    df_escolta = df_filtrado[df_filtrado["Posición"] == "Escolta (SG)"].sort_values(perfil_escolta, ascending=False).head(5)
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_escolta}' en la posición Escolta (SG):")
-    st.write(df_escolta[["Jugador", "Posición", perfil_escolta]])
-
-# Para Alero
-if perfil_alero != "Selecciona un perfil":
-    df_alero = df_filtrado[df_filtrado["Posición"] == "Alero (SF)"].sort_values(perfil_alero, ascending=False).head(5)
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_alero}' en la posición Alero (SF):")
-    st.write(df_alero[["Jugador", "Posición", perfil_alero]])
-
-# Para Ala-Pívot
-if perfil_ala_pivot != "Selecciona un perfil":
-    df_ala_pivot = df_filtrado[df_filtrado["Posición"] == "Ala-Pívot (PF)"].sort_values(perfil_ala_pivot, ascending=False).head(5)
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_ala_pivot}' en la posición Ala-Pívot (PF):")
-    st.write(df_ala_pivot[["Jugador", "Posición", perfil_ala_pivot]])
-
-# Para Pívot
-if perfil_pivot != "Selecciona un perfil":
-    df_pivot = df_filtrado[df_filtrado["Posición"] == "Pívot (C)"].sort_values(perfil_pivot, ascending=False).head(5)
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_pivot}' en la posición Pívot (C):")
-    st.write(df_pivot[["Jugador", "Posición", perfil_pivot]])
+# Mostrar los gráficos para cada posición
+mostrar_mejores_jugadores(df_filtrado, "Base (PG)", perfil_base, perfil_base)
+mostrar_mejores_jugadores(df_filtrado, "Escolta (SG)", perfil_escolta, perfil_escolta)
+mostrar_mejores_jugadores(df_filtrado, "Alero (SF)", perfil_alero, perfil_alero)
+mostrar_mejores_jugadores(df_filtrado, "Ala-Pívot (PF)", perfil_ala_pivot, perfil_ala_pivot)
+mostrar_mejores_jugadores(df_filtrado, "Pívot (C)", perfil_pivot, perfil_pivot)
