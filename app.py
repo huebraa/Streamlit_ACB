@@ -95,12 +95,16 @@ df["Puntuacion Pass-First"] = df.apply(lambda row: calcular_puntuacion(row, perf
 df["Puntuacion Scorer"] = df.apply(lambda row: calcular_puntuacion(row, perfil_scorer), axis=1)
 df["Puntuacion Two-Way"] = df.apply(lambda row: calcular_puntuacion(row, perfil_two_way), axis=1)
 
-# Mostrar las puntuaciones calculadas para todos los jugadores
-st.write("Puntuaciones de todos los jugadores según los perfiles:")
-# Selección de las columnas que deseas mostrar
+# Filtro para ver por posición (en barra lateral)
+posicion_seleccionada = st.sidebar.selectbox("Seleccionar posición", ["Todas las posiciones", "Base (PG)", "Escolta (SG)", "Alero (SF)", "Ala-Pívot (PF)", "Pívot (C)"])
+
+if posicion_seleccionada != "Todas las posiciones":
+    df = df[df["Posición"] == posicion_seleccionada]
+
+# Mostrar los datos con las puntuaciones calculadas
+st.write(f"Puntuaciones de los jugadores para la posición: {posicion_seleccionada}")
 df_mostrar = df[["Jugador", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way"]]
 df_mostrar = df_mostrar.sort_values(by="Puntuacion Pass-First", ascending=False)
 
 # Mostrar la tabla de puntuaciones
 st.write(df_mostrar)
-
