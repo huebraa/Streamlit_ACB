@@ -43,7 +43,7 @@ df = df.rename(columns=columnas_espanol)
 # Definir los pesos para cada perfil
 perfil_pass_first = {
     "AST%": 0.30,
-    "AST%/USG%": 0.25,
+    "AST/USG": 0.25,  # Vamos a calcular esta métrica a partir de AST% y USG%
     "STL%": 0.15,
     "eFG%": 0.15,
     "PTS": 0.10,
@@ -71,6 +71,11 @@ perfil_two_way = {
 # Función para calcular la puntuación de cada perfil
 def calcular_puntuacion(row, perfil):
     puntuacion = 0
+    # Si existe la columna "AST%" y "USG%", calculamos "AST/USG"
+    if "AST%" in row and "USG%" in row:
+        ast_usg = row["AST%"] / row["USG%"]  # Calcular AST/USG
+        row["AST/USG"] = ast_usg  # Asignar esta métrica al dataframe (de forma temporal)
+    
     # Iterar sobre cada estadística y su peso
     for stat, peso in perfil.items():
         # Verificar si la estadística existe en el dataframe
