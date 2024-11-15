@@ -183,25 +183,29 @@ minutos_minimos = st.sidebar.slider(
 # Filtrar los jugadores que tengan al menos el mínimo de minutos seleccionados
 df_filtrado = df[df["Minutos"] >= minutos_minimos]
 
+# Mostrar la tabla general (siempre visible)
+st.write("Tabla General de Jugadores:")
+st.write(df_filtrado)
+
 # Filtro para ver por posición (en barra lateral)
 posicion_seleccionada = st.sidebar.selectbox("Seleccionar posición", ["Todas las posiciones", "Base (PG)", "Escolta (SG)", "Alero (SF)", "Ala-Pívot (PF)", "Pívot (C)"])
-
-# Filtrar los jugadores por la posición seleccionada
-if posicion_seleccionada != "Todas las posiciones":
-    df_filtrado = df_filtrado[df_filtrado["Posición"] == posicion_seleccionada]
 
 # Filtro para ver el perfil (en barra lateral)
 perfil_seleccionado = st.sidebar.selectbox("Seleccionar perfil", ["Selecciona un perfil", *perfiles_posiciones.get(posicion_seleccionada, {}).keys()])
 
 # Calcular las puntuaciones de los jugadores según el perfil seleccionado
-if perfil_seleccionado != "Selecciona un perfil":
+if posicion_seleccionada != "Todas las posiciones" and perfil_seleccionado != "Selecciona un perfil":
     perfil = perfiles_posiciones.get(posicion_seleccionada, {}).get(perfil_seleccionado, {})
     
+    # Filtrar jugadores por posición
+    df_filtrado_posicion = df_filtrado[df_filtrado["Posición"] == posicion_seleccionada]
+    
     # Aplicar el cálculo de puntuación
-    df_filtrado["Puntuacion"] = df_filtrado.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
+    df_filtrado_posicion["Puntuacion"] = df_filtrado_posicion.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
     
     # Mostrar los 5 mejores jugadores según la puntuación
     st.write(f"Los 5 mejores jugadores para el perfil '{perfil_seleccionado}' en la posición {posicion_seleccionada}:")
-    st.write(df_filtrado[["Jugador", "Puntuacion"]].sort_values(by="Puntuacion", ascending=False).head(5))
+    st.write(df_filtrado_posicion[["Jugador", "Puntuacion"]].sort_values(by="Puntuacion", ascending=False).head(5))
 else:
+    # Mostrar mensaje si no hay perfil o posición seleccionados
     st.write("Selecciona una posición y un perfil para ver los resultados.")
