@@ -40,32 +40,7 @@ columnas_espanol = {
 # Renombrar las columnas
 df = df.rename(columns=columnas_espanol)
 
-# Filtros de posiciones y perfiles generales (Pass-First, Scorer, Two-Way)
-perfiles_generales = {
-    "Pass-First": {
-        "AST%": 0.30,
-        "PPR": 0.30,
-        "STL%": 0.15,
-        "eFG%": 0.10,
-        "ORtg": 0.10
-    },
-    "Scorer": {
-        "PTS": 0.40,
-        "3P%": 0.25,
-        "AST%": 0.10,
-        "STL%": 0.10,
-        "TOV%": 0.15
-    },
-    "Two-Way": {
-        "STL%": 0.30,
-        "AST%": 0.20,
-        "DRtg": 0.25,
-        "TRB%": 0.15,
-        "PER": 0.10
-    }
-}
-
-# Perfiles por posición
+# Perfiles por posición (por ejemplo, para bases)
 perfiles_posiciones = {
     "Base (PG)": {
         "Pass-First PG": {
@@ -206,40 +181,27 @@ minutos_minimos = st.sidebar.slider(
 )
 
 # Filtrar los jugadores que tengan al menos el mínimo de minutos seleccionados
-df = df[df["Minutos"] >= minutos_minimos]
+df_filtrado = df[df["Minutos"] >= minutos_minimos]
 
 # Filtro para ver por posición (en barra lateral)
 posicion_seleccionada = st.sidebar.selectbox("Seleccionar posición", ["Todas las posiciones", "Base (PG)", "Escolta (SG)", "Alero (SF)", "Ala-Pívot (PF)", "Pívot (C)"])
 
-# Filtro para seleccionar un perfil (en barra lateral)
-perfil_seleccionado = st.sidebar.selectbox("Seleccionar perfil", ["Pass-First", "Scorer", "Two-Way"])
-
-# Cálculo de puntuaciones para la tabla general (sin filtrar por posición)
-df["Puntuacion Pass-First"] = df.apply(lambda row: calcular_puntuacion(row, perfiles_generales["Pass-First"]), axis=1)
-df["Puntuacion Scorer"] = df.apply(lambda row: calcular_puntuacion(row, perfiles_generales["Scorer"]), axis=1)
-df["Puntuacion Two-Way"] = df.apply(lambda row: calcular_puntuacion(row, perfiles_generales["Two-Way"]), axis=1)
-
-# Mostrar tabla general
-st.write("Tabla general de puntuaciones:")
-st.write(df[["Jugador", "Posición", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way", "Minutos"]].sort_values(by="Puntuacion Pass-First", ascending=False))
-
-# Filtrar por posición seleccionada
+# Filtrar los jugadores por la posición seleccionada
 if posicion_seleccionada != "Todas las posiciones":
-    df_posicion = df[df["Posición"] == posicion_seleccionada]
-else:
-    df_posicion = df.copy()
+    df_filtrado = df_filtrado[df_filtrado["Posición"] == posicion_seleccionada]
 
-# Obtener el perfil seleccionado y calcular puntuaciones específicas para esa posición
-if posicion_seleccionada != "Todas las posiciones":
-    perfil = perfiles_posiciones.get(posicion_seleccionada, {}).get(perfil_seleccionado, None)
-else:
-    perfil = perfiles_generales.get(perfil_seleccionado, None)
+# Filtro para ver el perfil (en barra lateral)
+perfil_seleccionado = st.sidebar.selectbox("Seleccionar perfil", ["Selecciona un perfil", *perfiles_posiciones.get(posicion_seleccionada, {}).keys()])
 
-# Si hay perfil seleccionado, calcular puntuaciones y mostrar los 5 mejores jugadores
-if perfil is not None:
-    df_posicion["Puntuacion"] = df_posicion.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
-    df_mejores = df_posicion[["Jugador", "Posición", "Puntuacion", "Minutos"]].sort_values(by="Puntuacion", ascending=False).head(5)
-    st.write(f"Los 5 mejores jugadores para el perfil {perfil_seleccionado} en la posición {posicion_seleccionada}:")
-    st.write(df_mejores)
+# Calcular las puntuaciones de los jugadores según el perfil seleccionado
+if perfil_seleccionado != "Selecciona un perfil":
+    perfil = perfiles_posiciones.get(posicion_seleccionada, {}).get(perfil_seleccionado, {})
+    
+    # Aplicar el cálculo de puntuación
+    df_filtrado["Puntuacion"] = df_filtrado.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
+    
+    # Mostrar los 5 mejores jugadores según la puntuación
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_seleccionado}' en la posición {posicion_seleccionada}:")
+    st.write(df_filtrado[["Jugador", "Puntuacion"]].sort_values(by="Puntuacion", ascending=False).head(5))
 else:
     st.write("Selecciona una posición y un perfil para ver los resultados.")
