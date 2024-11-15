@@ -189,23 +189,40 @@ for posicion, perfiles in perfiles_posiciones.items():
     for perfil_nombre, perfil in perfiles.items():
         df_filtrado[perfil_nombre] = df_filtrado.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
 
-# Filtro para ver por posición (en barra lateral)
-posicion_seleccionada = st.sidebar.selectbox("Seleccionar posición", ["Todas las posiciones", "Base (PG)", "Escolta (SG)", "Alero (SF)", "Ala-Pívot (PF)", "Pívot (C)"])
-
 # Filtro para ver el perfil de la posición seleccionada (en barra lateral)
-perfil_seleccionado = st.sidebar.selectbox("Seleccionar perfil", ["Selecciona un perfil"] + list(perfiles_posiciones.get(posicion_seleccionada, {}).keys()))
+st.sidebar.header("Selecciona el perfil para cada posición")
+
+# Filtrar por Base
+perfil_base = st.sidebar.selectbox("Perfil Base (PG)", ["Selecciona un perfil"] + list(perfiles_posiciones["Base (PG)"].keys()))
+
+# Filtrar por Escolta
+perfil_escolta = st.sidebar.selectbox("Perfil Escolta (SG)", ["Selecciona un perfil"] + list(perfiles_posiciones["Escolta (SG)"].keys()))
+
+# Filtrar por Alero
+perfil_alero = st.sidebar.selectbox("Perfil Alero (SF)", ["Selecciona un perfil"] + list(perfiles_posiciones["Alero (SF)"].keys()))
+
+# Filtrar por Ala-Pívot
+perfil_ala_pivot = st.sidebar.selectbox("Perfil Ala-Pívot (PF)", ["Selecciona un perfil"] + list(perfiles_posiciones["Ala-Pívot (PF)"].keys()))
+
+# Filtrar por Pívot
+perfil_pivot = st.sidebar.selectbox("Perfil Pívot (C)", ["Selecciona un perfil"] + list(perfiles_posiciones["Pívot (C)"].keys()))
 
 # Mostrar la tabla general de puntuaciones de los perfiles (sin filtros de posición ni perfil)
 st.write("Tabla General de Jugadores con sus puntuaciones por perfil:")
 perfil_columnas = [col for col in df_filtrado.columns if col not in ["Jugador", "Posición", "Minutos"]]  # Filtrar columnas de puntuaciones
 st.write(df_filtrado[["Jugador", "Posición"] + perfil_columnas])
 
-# Mostrar los 5 mejores jugadores en la posición seleccionada para el perfil elegido
-if posicion_seleccionada != "Todas las posiciones" and perfil_seleccionado != "Selecciona un perfil":
-    # Filtrar los jugadores según la posición seleccionada
-    df_posicion = df_filtrado[df_filtrado["Posición"] == posicion_seleccionada]
+# Mostrar los 5 mejores jugadores para cada posición y perfil seleccionado
+# Para Base
+if perfil_base != "Selecciona un perfil":
+    df_base = df_filtrado[df_filtrado["Posición"] == "Base (PG)"].sort_values(perfil_base, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_base}' en la posición Base (PG):")
+    st.write(df_base[["Jugador", "Posición", perfil_base]])
 
-    # Ordenar por la puntuación del perfil seleccionado y mostrar los 5 mejores
-    df_mejores = df_posicion.nlargest(5, perfil_seleccionado)[["Jugador", "Posición", perfil_seleccionado]]
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_seleccionado}' en la posición {posicion_seleccionada}:")
-    st.write(df_mejores)
+# Para Escolta
+if perfil_escolta != "Selecciona un perfil":
+    df_escolta = df_filtrado[df_filtrado["Posición"] == "Escolta (SG)"].sort_values(perfil_escolta, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_escolta}' en la posición Escolta (SG):")
+    st.write(df_escolta[["Jugador", "Posición", perfil_escolto]])
+
+# De forma similar se repite para Alero, Ala-Pívot y Pívot...
