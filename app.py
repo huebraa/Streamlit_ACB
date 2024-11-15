@@ -23,14 +23,9 @@ st.dataframe(df.head())  # Mostrar las primeras filas para verificar los datos
 posiciones = df["Posición"].unique()
 posicion = st.selectbox("Selecciona una posición:", posiciones)
 
-# Filtro por minutos jugados (ajustar según el nombre de la columna)
-try:
-    min_min = df["Minutos"].astype(float).min()  # Cambiar a df["MIN"] si el nombre es otro
-    min_max = df["Minutos"].astype(float).max()  # Cambiar a df["MIN"] si el nombre es otro
-except KeyError:
-    st.error("La columna 'Minutos' no se encuentra en el DataFrame. Verifica el scraping.")
-    st.stop()
-
+# Filtro por minutos jugados (usando la columna correcta 'MIN')
+min_min = df["MIN"].astype(float).min()  # Cambiado a 'MIN'
+min_max = df["MIN"].astype(float).max()  # Cambiado a 'MIN'
 minutos = st.slider("Filtrar por minutos jugados:", 
                     min_value=min_min, 
                     max_value=min_max, 
@@ -38,7 +33,7 @@ minutos = st.slider("Filtrar por minutos jugados:",
 
 # Aplicar los filtros
 df_filtrado = df[(df["Posición"] == posicion) & 
-                 (df["Minutos"].astype(float).between(minutos[0], minutos[1]))]
+                 (df["MIN"].astype(float).between(minutos[0], minutos[1]))]  # Cambiado a 'MIN'
 
 # Mostrar los resultados filtrados
 st.write(f"Jugadores en la posición {posicion} con entre {minutos[0]} y {minutos[1]} minutos jugados:")
@@ -49,5 +44,4 @@ st.write("Estadísticas agregadas:")
 st.write(f"Promedio de puntos por jugador: {df_filtrado['Puntos'].astype(float).mean():.2f}")
 st.write(f"Promedio de rebotes por jugador: {df_filtrado['Rebotes'].astype(float).mean():.2f}")
 st.write(f"Promedio de asistencias por jugador: {df_filtrado['Asistencias'].astype(float).mean():.2f}")
-
 
