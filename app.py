@@ -2,6 +2,22 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# Título de la aplicación
+st.title("Análisis de Jugadores de Baloncesto por Perfil y Posición")
+
+# Descripción de la aplicación
+st.write("""
+    Esta aplicación permite analizar las estadísticas de jugadores de baloncesto de la temporada 2023-2024. 
+    Puedes filtrar los jugadores según los minutos jugados y explorar sus puntuaciones en diferentes perfiles de posición, 
+    como Base, Escolta, Alero, Ala-Pívot y Pívot. 
+    Además, puedes ver los mejores jugadores para cada perfil seleccionado, comparando sus estadísticas clave como puntos, 
+    asistencias, rebotes, y más.
+    
+    Los perfiles incluyen especializaciones como 'Pass-First', 'Scorer', 'Two-Way', entre otros, que definen el estilo de juego 
+    de cada jugador y cómo se espera que contribuyan al equipo. ¡Explora y encuentra a los jugadores que mejor se adapten a 
+    tus necesidades de equipo!
+""")
+
 # Función para cargar los datos
 @st.cache_data
 def cargar_datos():
@@ -41,17 +57,123 @@ columnas_espanol = {
 # Renombrar las columnas
 df = df.rename(columns=columnas_espanol)
 
-# Perfiles por posición (simplificado aquí para ejemplo)
+# Perfiles por posición
 perfiles_posiciones = {
     "Base (PG)": {
-        "Pass-First PG": {"AST%": 0.30, "PPR": 0.30, "STL%": 0.15, "eFG%": 0.10, "ORtg": 0.10},
-        "Scorer PG": {"PTS": 0.40, "3P%": 0.25, "AST%": 0.10, "STL%": 0.10, "TOV%": 0.15}
+        "Pass-First PG": {
+            "AST%": 0.30,
+            "PPR": 0.30,
+            "STL%": 0.15,
+            "eFG%": 0.10,
+            "ORtg": 0.10
+        },
+        "Scorer PG": {
+            "PTS": 0.40,
+            "3P%": 0.25,
+            "AST%": 0.10,
+            "STL%": 0.10,
+            "TOV%": 0.15
+        },
+        "Two-Way PG": {
+            "STL%": 0.30,
+            "AST%": 0.20,
+            "DRtg": 0.25,
+            "TRB%": 0.15,
+            "PER": 0.10
+        }
     },
     "Escolta (SG)": {
-        "Pass-First SG": {"AST%": 0.35, "PPR": 0.25, "STL%": 0.15, "eFG%": 0.10, "ORtg": 0.15},
-        "Scorer SG": {"PTS": 0.40, "3P%": 0.30, "eFG%": 0.15, "STL%": 0.10, "TOV%": 0.05}
+        "Pass-First SG": {
+            "AST%": 0.35,
+            "PPR": 0.25,
+            "STL%": 0.15,
+            "eFG%": 0.10,
+            "ORtg": 0.15
+        },
+        "Scorer SG": {
+            "PTS": 0.40,
+            "3P%": 0.30,
+            "eFG%": 0.15,
+            "STL%": 0.10,
+            "TOV%": 0.05
+        },
+        "Two-Way SG": {
+            "STL%": 0.35,
+            "DRtg": 0.25,
+            "AST%": 0.15,
+            "3P%": 0.10,
+            "TOV%": 0.15
+        }
+    },
+    "Alero (SF)": {
+        "Playmaking SF": {
+            "AST%": 0.30,
+            "PPR": 0.30,
+            "STL%": 0.15,
+            "eFG%": 0.15,
+            "ORtg": 0.10
+        },
+        "Scoring SF": {
+            "PTS": 0.40,
+            "3P%": 0.30,
+            "eFG%": 0.15,
+            "STL%": 0.10,
+            "TOV%": 0.05
+        },
+        "Two-Way SF": {
+            "STL%": 0.35,
+            "DRtg": 0.30,
+            "TRB%": 0.15,
+            "eFG%": 0.10,
+            "TOV%": 0.10
+        }
+    },
+    "Ala-Pívot (PF)": {
+        "Stretch PF": {
+            "3P%": 0.35,
+            "eFG%": 0.30,
+            "PTS": 0.20,
+            "TRB%": 0.10,
+            "TOV%": 0.05
+        },
+        "Post-Play PF": {
+            "TRB%": 0.30,
+            "PTS": 0.25,
+            "BLK%": 0.20,
+            "ORtg": 0.15,
+            "STL%": 0.10
+        },
+        "Two-Way PF": {
+            "STL%": 0.25,
+            "TRB%": 0.25,
+            "DRtg": 0.20,
+            "eFG%": 0.15,
+            "TOV%": 0.15
+        }
+    },
+    "Pívot (C)": {
+        "Defensive C": {
+            "BLK%": 0.40,
+            "DRtg": 0.30,
+            "TRB%": 0.15,
+            "TOV%": 0.10,
+            "STL%": 0.05
+        },
+        "Scoring C": {
+            "PTS": 0.35,
+            "TRB%": 0.25,
+            "FG%": 0.20,
+            "3P%": 0.10,
+            "FT%": 0.10
+        },
+        "Two-Way C": {
+            "STL%": 0.25,
+            "BLK%": 0.30,
+            "TRB%": 0.25,
+            "PTS": 0.10,
+            "eFG%": 0.10
+        }
     }
-    # Otros perfiles para las posiciones se agregan de forma similar
 }
 
 # Normalización de estadísticas a percentiles por posición
@@ -92,43 +214,28 @@ for posicion, perfiles in perfiles_posiciones.items():
     for perfil_nombre, perfil in perfiles.items():
         df_filtrado[perfil_nombre] = df_filtrado.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
 
-# Mostrar tabla general de puntuaciones de los perfiles
-st.write("Tabla General de Jugadores con sus puntuaciones por perfil:")
-perfil_columnas = [col for col in df_filtrado.columns if col not in ["Jugador", "Posición", "Minutos"]]  # Filtrar columnas de puntuaciones
-st.dataframe(df_filtrado[["Jugador", "Posición"] + perfil_columnas])
+# Filtro para ver el perfil de la posición seleccionada (en barra lateral)
+st.sidebar.header("Selecciona el perfil para cada posición")
 
-# Mejorar la elección de perfiles y permitir comparaciones entre varios perfiles
-st.sidebar.header("Selecciona los perfiles para comparar")
+# Filtrar por Base
+perfil_base = st.sidebar.selectbox("Perfil Base (PG)", ["Selecciona un perfil"] + list(perfiles_posiciones["Base (PG)"].keys()))
 
-# Permitir seleccionar múltiples perfiles por posición
-perfil_base = st.sidebar.multiselect("Selecciona los perfiles para Base (PG)", list(perfiles_posiciones["Base (PG)"].keys()))
-perfil_escolta = st.sidebar.multiselect("Selecciona los perfiles para Escolta (SG)", list(perfiles_posiciones["Escolta (SG)"].keys()))
+# Filtrar por Escolta
+perfil_escolta = st.sidebar.selectbox("Perfil Escolta (SG)", ["Selecciona un perfil"] + list(perfiles_posiciones["Escolta (SG)"].keys()))
 
-# Crear un gráfico comparativo para los jugadores seleccionados
-if perfil_base or perfil_escolta:
-    fig, ax = plt.subplots(figsize=(10, 6))
+# Filtrar por Alero
+perfil_alero = st.sidebar.selectbox("Perfil Alero (SF)", ["Selecciona un perfil"] + list(perfiles_posiciones["Alero (SF)"].keys()))
 
-    # Filtrar los perfiles seleccionados para cada posición
-    for perfil in perfil_base:
-        df_base = df_filtrado[df_filtrado["Posición"] == "Base (PG)"].sort_values(perfil, ascending=False).head(5)
-        ax.barh(df_base["Jugador"], df_base[perfil], label=f"Base - {perfil}")
+# Filtrar por Ala-Pívot
+perfil_ala_pivot = st.sidebar.selectbox("Perfil Ala-Pívot (PF)", ["Selecciona un perfil"] + list(perfiles_posiciones["Ala-Pívot (PF)"].keys()))
 
-    for perfil in perfil_escolta:
-        df_escolta = df_filtrado[df_filtrado["Posición"] == "Escolta (SG)"].sort_values(perfil, ascending=False).head(5)
-        ax.barh(df_escolta["Jugador"], df_escolta[perfil], label=f"Escolta - {perfil}")
+# Filtrar por Pívot
+perfil_pivot = st.sidebar.selectbox("Perfil Pívot (C)", ["Selecciona un perfil"] + list(perfiles_posiciones["Pívot (C)"].keys()))
 
-    ax.set_xlabel("Puntuación")
-    ax.set_title("Comparación de Puntuaciones por Perfil")
-    ax.legend()
-    st.pyplot(fig)
-
-# Mostrar los 5 mejores jugadores para cada perfil seleccionado
-if perfil_base:
-    st.write(f"Los 5 mejores jugadores para los perfiles seleccionados en la posición Base (PG):")
-    df_base = df_filtrado[df_filtrado["Posición"] == "Base (PG)"].sort_values(perfil_base[0], ascending=False).head(5)
-    st.write(df_base[["Jugador", "Posición"] + perfil_base])
-
-if perfil_escolta:
-    st.write(f"Los 5 mejores jugadores para los perfiles seleccionados en la posición Escolta (SG):")
-    df_escolta = df_filtrado[df_filtrado["Posición"] == "Escolta (SG)"].sort_values(perfil_escolta[0], ascending=False).head(5)
-    st.write(df_escolta[["Jugador", "Posición"] + perfil_escolta])
+# Mostramos los mejores jugadores por cada perfil seleccionado
+for perfil_nombre, perfil in [("Base", perfil_base), ("Escolta", perfil_escolta), ("Alero", perfil_alero), 
+                              ("Ala-Pívot", perfil_ala_pivot), ("Pívot", perfil_pivot)]:
+    if perfil != "Selecciona un perfil":
+        st.subheader(f"Mejores jugadores para el perfil de {perfil_nombre}")
+        mejores_jugadores = df_filtrado[["Jugador", perfil]].sort_values(by=perfil, ascending=False).head(5)
+        st.write(mejores_jugadores)
