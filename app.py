@@ -40,9 +40,6 @@ columnas_espanol = {
 # Renombrar las columnas
 df = df.rename(columns=columnas_espanol)
 
-# Filtrar solo a jugadores en la posición de base (PG)
-df_base = df[df["Posición"] == "PG"]
-
 # Definir los pesos para cada perfil
 perfil_pass_first = {
     "AST%": 0.30,
@@ -88,11 +85,11 @@ def calcular_puntuacion(row, perfil):
     
     return puntuacion
 
-# Calcular las puntuaciones para los jugadores de la posición base (PG)
-df_base["Puntuacion Pass-First"] = df_base.apply(lambda row: calcular_puntuacion(row, perfil_pass_first), axis=1)
-df_base["Puntuacion Scorer"] = df_base.apply(lambda row: calcular_puntuacion(row, perfil_scorer), axis=1)
-df_base["Puntuacion Two-Way"] = df_base.apply(lambda row: calcular_puntuacion(row, perfil_two_way), axis=1)
+# Calcular las puntuaciones para todos los jugadores
+df["Puntuacion Pass-First"] = df.apply(lambda row: calcular_puntuacion(row, perfil_pass_first), axis=1)
+df["Puntuacion Scorer"] = df.apply(lambda row: calcular_puntuacion(row, perfil_scorer), axis=1)
+df["Puntuacion Two-Way"] = df.apply(lambda row: calcular_puntuacion(row, perfil_two_way), axis=1)
 
-# Mostrar las puntuaciones calculadas para todos los bases
-st.write("Puntuaciones para todos los jugadores de la posición Base (PG) según los perfiles:")
-st.write(df_base[["Jugador", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way"]])
+# Mostrar las puntuaciones calculadas para todos los jugadores
+st.write("Puntuaciones de todos los jugadores según los perfiles:")
+st.write(df[["Jugador", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way"]].sort_values(by="Puntuacion Pass-First", ascending=False))
