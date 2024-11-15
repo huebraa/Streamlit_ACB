@@ -47,16 +47,17 @@ perfiles_posiciones = {
         "Pass-First PG": {
             "AST%": 0.30,
             "PPR": 0.30,
-            "STL%": 0.15,
+            "TOV%": 0.20,
             "eFG%": 0.10,
             "ORtg": 0.10
         },
         "Scorer PG": {
-            "PTS": 0.40,
-            "3P%": 0.25,
-            "AST%": 0.10,
-            "STL%": 0.10,
-            "TOV%": 0.15
+            "ORtg": 0.20,
+            "3P%": 0.15,
+            "USG%": 0.35,
+            "TS%": 0.15,
+            "eFG%": 0.15,
+        
         },
         "Two-Way PG": {
             "STL%": 0.30,
