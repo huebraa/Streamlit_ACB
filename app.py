@@ -77,20 +77,30 @@ perfil_two_way = {
 # Función para calcular la puntuación de cada perfil
 def calcular_puntuacion(df, perfil):
     puntuaciones = []
+    
+    # Iterar sobre cada jugador en el dataframe
     for index, row in df.iterrows():
         puntuacion = 0
+        # Iterar sobre cada estadística y su peso
         for stat, peso in perfil.items():
-            if stat in row:  # Verificar si la estadística está en la fila
-                puntuacion += row[stat] * peso
+            # Verificar si la estadística existe en el dataframe
+            if stat in row:
+                # Sumar la puntuación correspondiente (asegurarse de que sea un número)
+                try:
+                    puntuacion += float(row[stat]) * peso
+                except ValueError:
+                    st.write(f"Advertencia: No se pudo convertir el valor de {stat} para el jugador {row['Jugador']}. Valor: {row[stat]}")
             else:
                 st.write(f"Advertencia: La columna {stat} no se encuentra en la fila del jugador {row['Jugador']}")
+        
+        # Agregar la puntuación calculada para el jugador
         puntuaciones.append(puntuacion)
+    
     return puntuaciones
 
 # Calcular puntuaciones para cada perfil
 st.write("Calculando puntuaciones para los perfiles...")
 
-# Añadir una verificación para saber si el cálculo está funcionando
 try:
     df_base["Puntuacion Pass-First"] = calcular_puntuacion(df_base, perfil_pass_first)
     df_base["Puntuacion Scorer"] = calcular_puntuacion(df_base, perfil_scorer)
@@ -133,4 +143,3 @@ df_filtrado = df[(df["Posición"] == posicion) &
 # Mostrar los resultados filtrados en la sección principal
 st.write(f"Jugadores en la posición {posicion} con entre {minutos[0]} y {minutos[1]} minutos jugados:")
 st.dataframe(df_filtrado)
-
