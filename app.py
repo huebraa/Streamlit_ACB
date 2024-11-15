@@ -67,52 +67,7 @@ perfiles_posiciones = {
             "PER": 0.10
         }
     },
-    "Escolta (SG)": {
-        "Pass-First SG": {
-            "AST%": 0.35,
-            "PPR": 0.25,
-            "STL%": 0.15,
-            "eFG%": 0.10,
-            "ORtg": 0.15
-        },
-        "Scorer SG": {
-            "PTS": 0.40,
-            "3P%": 0.30,
-            "eFG%": 0.15,
-            "STL%": 0.10,
-            "TOV%": 0.05
-        },
-        "Two-Way SG": {
-            "STL%": 0.35,
-            "DRtg": 0.25,
-            "AST%": 0.15,
-            "3P%": 0.10,
-            "TOV%": 0.15
-        }
-    },
-    "Alero (SF)": {
-        "Playmaking SF": {
-            "AST%": 0.30,
-            "PPR": 0.30,
-            "STL%": 0.15,
-            "eFG%": 0.15,
-            "ORtg": 0.10
-        },
-        "Scoring SF": {
-            "PTS": 0.40,
-            "3P%": 0.30,
-            "eFG%": 0.15,
-            "STL%": 0.10,
-            "TOV%": 0.05
-        },
-        "Two-Way SF": {
-            "STL%": 0.35,
-            "DRtg": 0.30,
-            "TRB%": 0.15,
-            "eFG%": 0.10,
-            "TOV%": 0.10
-        }
-    }
+    # Perfiles para otras posiciones (Escolta, Alero, Ala-pivot, Pivot)...
 }
 
 # Función para calcular percentiles
@@ -147,35 +102,34 @@ minutos_minimos = st.sidebar.slider(
 # Filtrar los jugadores que tengan al menos el mínimo de minutos seleccionados
 df_filtrado = df[df["Minutos"] >= minutos_minimos]
 
-# Agregar las puntuaciones para los perfiles de todas las posiciones
+# Calcular puntuaciones de perfiles para todos los jugadores
 for posicion, perfiles in perfiles_posiciones.items():
     for perfil_nombre, perfil in perfiles.items():
         df_filtrado[perfil_nombre] = df_filtrado.apply(lambda row: calcular_puntuacion_percentil(row, perfil), axis=1)
 
-# Filtro para seleccionar la posición y el perfil
+# Tabla general con puntuaciones
+tabla_general = df_filtrado[["Jugador", "Posición", "Minutos"] + list(perfiles_posiciones["Base (PG)"].keys())].sort_values(by="Minutos", ascending=False)
+st.write("Tabla general de jugadores con puntuaciones por perfiles:", tabla_general)
+
+# Filtros para posición y perfil
 posicion_seleccionada = st.sidebar.selectbox("Selecciona una posición", ["Todas"] + list(perfiles_posiciones.keys()))
+perfil_seleccionado = None
 if posicion_seleccionada != "Todas":
     perfil_seleccionado = st.sidebar.selectbox(
-        f"Selecciona un perfil para {posicion_seleccionada}", 
+        f"Selecciona un perfil para {posicion_seleccionada}",
         list(perfiles_posiciones[posicion_seleccionada].keys())
     )
 
-# Mostrar los 5 mejores jugadores como imagen
-def mostrar_imagen_top_5(df_filtrado, posicion, perfil):
-    # Filtrar por la posición y perfil seleccionado
-    df_posicion = df_filtrado[df_filtrado["Posición"] == posicion].sort_values(perfil, ascending=False).head(5)
+# Mostrar tabla e imagen con los mejores jugadores según los filtros
+if perfil_seleccionado:
+    df_perfil = df_filtrado[df_filtrado["Posición"] == posicion_seleccionada].sort_values(perfil_seleccionado, ascending=False).head(5)
     
-    # Crear la imagen con matplotlib
-    fig, ax = plt.subplots(figsize=(6, 4))
-    jugadores = df_posicion["Jugador"]
-    puntuaciones = df_posicion[perfil]
-    
-    # Mostrar la lista como un gráfico
-    ax.barh(jugadores, puntuaciones, color='skyblue')
-    ax.set_xlabel('Puntuación')
-    ax.set_title(f"Top 5 jugadores para el perfil '{perfil}' en la posición {posicion}")
-    st.pyplot(fig)
+    st.write(f"Top 5 jugadores en el perfil '{perfil_seleccionado}' para la posición {posicion_seleccionada}:")
+    st.write(df_perfil[["Jugador", perfil_seleccionado]])
 
-# Mostrar resultados
-if posicion_seleccionada != "Todas" and perfil_seleccionado:
-    mostrar_imagen_top_5(df_filtrado, posicion_seleccionada, perfil_seleccionado)
+    # Crear imagen
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.barh(df_perfil["Jugador"], df_perfil[perfil_seleccionado], color='skyblue')
+    ax.set_xlabel('Puntuación (Percentil)')
+    ax.set_title(f"Top 5 - {perfil_seleccionado} ({posicion_seleccionada})")
+    st.pyplot(fig)
