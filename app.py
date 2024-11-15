@@ -122,6 +122,10 @@ else:
 # Calcular las puntuaciones para todos los jugadores
 df["Puntuacion"] = df.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
 
+# Mostrar la tabla general
+st.write("Tabla general de jugadores:")
+st.write(df[["Jugador", "Posición", "Minutos", "PTS", "Puntuacion"]])
+
 # Mostrar los 5 mejores jugadores según el perfil seleccionado
 st.write(f"Los 5 mejores jugadores para el perfil: {perfil_seleccionado}")
 df_mejores = df[["Jugador", "Puntuacion", "Minutos"]].sort_values(by="Puntuacion", ascending=False).head(5)
