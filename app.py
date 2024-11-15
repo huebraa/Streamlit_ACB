@@ -1,9 +1,5 @@
-import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
-
 # Función para cargar los datos
-@st.cache_data
+@st.cache
 def cargar_datos():
     return pd.read_csv("estadisticas_completas.csv")
 
@@ -168,7 +164,7 @@ estadisticas_relevantes = set(
 # Calcular percentiles dentro de cada posición
 for stat in estadisticas_relevantes:
     if stat in df:  # Asegúrate de que la estadística está en el DataFrame
-        df[stat] = df.groupby("Posición")[stat].rank(pct=True) * 100  # Percentiles (0-100)
+        df[stat] = df.groupby("Posición")[stat].rank(pct=True) * 100
 
 # Función para calcular la puntuación de cada perfil
 def calcular_puntuacion(row, perfil):
@@ -179,19 +175,18 @@ def calcular_puntuacion(row, perfil):
                 valor = float(row[stat])
                 puntuacion += valor * peso
             except ValueError:
-                st.warning(f"Advertencia: No se pudo convertir el valor de {stat} para el jugador {row['Jugador']}. Valor: {row[stat]}")
+                st.write(f"Advertencia: No se pudo convertir el valor de {stat} para el jugador {row['Jugador']}. Valor: {row[stat]}")
     return puntuacion
 
-# Filtro de mínimo de minutos
+# Filtrado por mínimo de minutos
 minutos_minimos = st.sidebar.slider(
     "Selecciona el mínimo de minutos jugados",
-    min_value=int(df["Minutos"].min()), 
-    max_value=int(df["Minutos"].max()), 
-    value=int(df["Minutos"].min()), 
+    min_value=int(df["Minutos"].min()),
+    max_value=int(df["Minutos"].max()),
+    value=int(df["Minutos"].min()),
     step=1
 )
 
-# Filtrar los jugadores que tengan al menos el mínimo de minutos seleccionados
 df_filtrado = df[df["Minutos"] >= minutos_minimos]
 
 # Agregar las puntuaciones para los perfiles de todas las posiciones
@@ -219,5 +214,36 @@ perfil_pivot = st.sidebar.selectbox("Perfil Pívot (C)", ["Selecciona un perfil"
 
 # Mostrar la tabla general de puntuaciones de los perfiles (sin filtros de posición ni perfil)
 st.write("Tabla General de Jugadores con sus puntuaciones por perfil:")
-perfil_columnas = [col for col in df_filtrado.columns if col not in ["Jugador", "Posición", "Minutos"]]
-st.dataframe(df_filtrado[["Jugador", "Posición", "Minutos"] + perfil_columnas])
+perfil_columnas = [col for col in df_filtrado.columns if col not in ["Jugador", "Posición", "Minutos"]]  # Filtrar columnas de puntuaciones
+st.write(df_filtrado[["Jugador", "Posición"] + perfil_columnas])
+
+# Mostrar los 5 mejores jugadores para cada posición y perfil seleccionado
+# Para Base
+if perfil_base != "Selecciona un perfil":
+    df_base = df_filtrado[df_filtrado["Posición"] == "Base (PG)"].sort_values(perfil_base, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_base}' en la posición Base (PG):")
+    st.write(df_base[["Jugador", "Posición", perfil_base]])
+
+# Para Escolta
+if perfil_escolta != "Selecciona un perfil":
+    df_escolta = df_filtrado[df_filtrado["Posición"] == "Escolta (SG)"].sort_values(perfil_escolta, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_escolta}' en la posición Escolta (SG):")
+    st.write(df_escolta[["Jugador", "Posición", perfil_escolta]])
+
+# Para Alero
+if perfil_alero != "Selecciona un perfil":
+    df_alero = df_filtrado[df_filtrado["Posición"] == "Alero (SF)"].sort_values(perfil_alero, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_alero}' en la posición Alero (SF):")
+    st.write(df_alero[["Jugador", "Posición", perfil_alero]])
+
+# Para Ala-Pívot
+if perfil_ala_pivot != "Selecciona un perfil":
+    df_ala_pivot = df_filtrado[df_filtrado["Posición"] == "Ala-Pívot (PF)"].sort_values(perfil_ala_pivot, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_ala_pivot}' en la posición Ala-Pívot (PF):")
+    st.write(df_ala_pivot[["Jugador", "Posición", perfil_ala_pivot]])
+
+# Para Pívot
+if perfil_pivot != "Selecciona un perfil":
+    df_pivot = df_filtrado[df_filtrado["Posición"] == "Pívot (C)"].sort_values(perfil_pivot, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_pivot}' en la posición Pívot (C):")
+    st.write(df_pivot[["Jugador", "Posición", perfil_pivot]])
