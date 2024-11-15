@@ -184,6 +184,7 @@ def calcular_puntuacion(row, perfil):
                 st.warning(f"Advertencia: No se pudo convertir el valor de {stat} para el jugador {row['Jugador']}. Valor: {row[stat]}")
     return puntuacion
 
+
 # Filtrado por mínimo de minutos
 minutos_minimos = st.sidebar.slider(
     "Selecciona el mínimo de minutos jugados",
@@ -192,9 +193,8 @@ minutos_minimos = st.sidebar.slider(
     value=int(df["Minutos"].min()),
     step=1
 )
-# Filtrar los jugadores que tengan al menos el mínimo de minutos seleccionados
+
 df_filtrado = df[df["Minutos"] >= minutos_minimos]
-)
 
 
 
