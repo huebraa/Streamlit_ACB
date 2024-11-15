@@ -126,7 +126,25 @@ df["Puntuacion"] = df.apply(lambda row: calcular_puntuacion(row, perfil), axis=1
 st.write("Tabla general de jugadores:")
 st.write(df[["Jugador", "Posición", "Minutos", "PTS", "Puntuacion"]])
 
-# Mostrar los 5 mejores jugadores según el perfil seleccionado
-st.write(f"Los 5 mejores jugadores para el perfil: {perfil_seleccionado}")
-df_mejores = df[["Jugador", "Puntuacion", "Minutos"]].sort_values(by="Puntuacion", ascending=False).head(5)
-st.write(df_mejores)
+# Mostrar los 5 mejores jugadores según el perfil seleccionado, solo si la posición seleccionada es 'Base (PG)'
+if posicion_seleccionada == "Base (PG)":
+    st.markdown("""
+        <style>
+        .recuadro {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+        </style>
+        <div class="recuadro">
+            <h3>Los 5 mejores jugadores para el perfil: {perfil_seleccionado}</h3>
+            <div>
+                {df_mejores.to_html(index=False)}
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # Obtener los 5 mejores jugadores según el perfil seleccionado
+    df_mejores = df[["Jugador", "Puntuacion", "Minutos"]].sort_values(by="Puntuacion", ascending=False).head(5)
+    st.write(df_mejores)
