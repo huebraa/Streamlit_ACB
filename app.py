@@ -40,7 +40,32 @@ columnas_espanol = {
 # Renombrar las columnas
 df = df.rename(columns=columnas_espanol)
 
-# Filtros de posiciones
+# Filtros de posiciones y perfiles generales (Pass-First, Scorer, Two-Way)
+perfiles_generales = {
+    "Pass-First": {
+        "AST%": 0.30,
+        "PPR": 0.30,
+        "STL%": 0.15,
+        "eFG%": 0.10,
+        "ORtg": 0.10
+    },
+    "Scorer": {
+        "PTS": 0.40,
+        "3P%": 0.25,
+        "AST%": 0.10,
+        "STL%": 0.10,
+        "TOV%": 0.15
+    },
+    "Two-Way": {
+        "STL%": 0.30,
+        "AST%": 0.20,
+        "DRtg": 0.25,
+        "TRB%": 0.15,
+        "PER": 0.10
+    }
+}
+
+# Perfiles por posición
 perfiles_posiciones = {
     "Base (PG)": {
         "Pass-First PG": {
@@ -183,49 +208,32 @@ minutos_minimos = st.sidebar.slider(
 # Filtrar los jugadores que tengan al menos el mínimo de minutos seleccionados
 df = df[df["Minutos"] >= minutos_minimos]
 
-# Mostrar la tabla general con las puntuaciones de todos los perfiles
-df["Puntuacion Pass-First"] = df.apply(lambda row: calcular_puntuacion(row, {
-    "AST%": 0.30,
-    "PPR": 0.30,
-    "STL%": 0.15,
-    "eFG%": 0.10,
-    "ORtg": 0.10
-}), axis=1)
-df["Puntuacion Scorer"] = df.apply(lambda row: calcular_puntuacion(row, {
-    "PTS": 0.40,
-    "3P%": 0.25,
-    "AST%": 0.10,
-    "STL%": 0.10,
-    "TOV%": 0.15
-}), axis=1)
-df["Puntuacion Two-Way"] = df.apply(lambda row: calcular_puntuacion(row, {
-    "STL%": 0.30,
-    "AST%": 0.20,
-    "DRtg": 0.25,
-    "TRB%": 0.15,
-    "PER": 0.10
-}), axis=1)
-
-st.write("Puntuaciones de todos los jugadores según los perfiles:")
-st.write(df[["Jugador", "Posición", "Puntuacion Pass-First", "Puntuacion Scorer", "Puntuacion Two-Way"]].sort_values(by="Puntuacion Pass-First", ascending=False))
-
 # Filtro para ver por posición (en barra lateral)
 posicion_seleccionada = st.sidebar.selectbox("Seleccionar posición", ["Todas las posiciones", "Base (PG)", "Escolta (SG)", "Alero (SF)", "Ala-Pívot (PF)", "Pívot (C)"])
 
 # Filtro para seleccionar el perfil de jugador
 perfil_seleccionado = st.sidebar.selectbox("Seleccionar perfil de jugador", ["Pass-First", "Scorer", "Two-Way"])
 
-# Filtrar por posición y perfil
+# Definir el perfil según la selección y la posición
 if posicion_seleccionada != "Todas las posiciones":
-    perfil = perfiles_posiciones[posicion_seleccionada].get(f"{perfil_seleccionado} {posicion_seleccionada}", None)
+    if perfil_seleccionado in perfiles_posiciones[posicion_seleccionada]:
+        perfil = perfiles_posiciones[posicion_seleccionada][perfil_seleccionado]
+    else:
+        perfil = None
 else:
-    perfil = None
+    perfil = perfiles_generales.get(perfil_seleccionado, None)
 
-# Calcular las puntuaciones para todos los jugadores del perfil y posición seleccionados
+# Calcular las puntuaciones para todos los jugadores
 if perfil is not None:
     df["Puntuacion"] = df.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
-    df_mejores = df[["Jugador", "Posición", "Puntuacion", "Minutos"]].sort_values(by="Puntuacion", ascending=False).head(5)
+
+    # Mostrar la tabla general con puntuaciones
+    st.write("Puntuaciones generales:")
+    st.write(df[["Jugador", "Posición", "Puntuacion", "Minutos"]])
+
+    # Mostrar los 5 mejores jugadores según el perfil seleccionado
     st.write(f"Los 5 mejores jugadores para el perfil: {perfil_seleccionado} - {posicion_seleccionada}")
+    df_mejores = df[["Jugador", "Posición", "Puntuacion", "Minutos"]].sort_values(by="Puntuacion", ascending=False).head(5)
     st.write(df_mejores)
 else:
     st.write("Selecciona una posición y un perfil para ver los resultados.")
