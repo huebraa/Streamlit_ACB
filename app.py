@@ -181,13 +181,7 @@ minutos_minimos = st.sidebar.slider(
     value=int(df["Minutos"].min()), 
     step=1
 )
-import streamlit as st
-from PIL import Image
 
-# Load and display the image
-image_path = "/mnt/data/image.png"  # Path to the uploaded image file
-image = Image.open(image_path)
-st.image(image, caption="24-25 Albanian Kategoria Superiore, Top 5 Players Per Role", use_column_width=True)
 
 
 # Filtrar los jugadores que tengan al menos el mínimo de minutos seleccionados
