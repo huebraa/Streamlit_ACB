@@ -9,35 +9,55 @@ def cargar_datos():
 # Cargar los datos
 df = cargar_datos()
 
-# Mapeo de nombres de las columnas para que se vean en español
+# Renombrar las columnas para que se vean en español
 columnas_espanol = {
     "MIN": "Minutos",
-    "Posición": "Posición"
+    "Posición": "Posición",
+    "Puntos": "Puntos",
+    "Asistencias": "Asistencias",
+    "Robos": "Robos",
+    "REB": "Rebotes",
+    "TS%": "Eficiencia de tiro"
 }
 
-# Renombrar las columnas
 df = df.rename(columns=columnas_espanol)
 
 # Título de la aplicación
-st.title("Estadísticas de Jugadores - Liga ACB")
+st.title("Perfil del Jugador - Base (PG)")
 
-# Mostrar las posiciones disponibles al principio
-posiciones = df["Posición"].unique()
-posicion = st.selectbox("Selecciona una posición:", posiciones)
+# Filtro por la posición "Base"
+df_base = df[df["Posición"] == "Base"]
 
-# Mover los filtros de minutos a la barra lateral
-st.sidebar.header("Filtrar por minutos jugados")
-min_min = df["Minutos"].astype(float).min()
-min_max = df["Minutos"].astype(float).max()
-minutos = st.sidebar.slider("Filtrar por minutos jugados:", 
-                            min_value=min_min, 
-                            max_value=min_max, 
-                            value=(min_min, min_max))
+# Definir pesos para cada estadística
+pesos = {
+    "Asistencias": 0.30,
+    "Puntos": 0.20,
+    "Asistencias por minuto": 0.15,
+    "Robos": 0.15,
+    "Eficiencia de tiro": 0.10,
+    "Minutos": 0.05,
+    "Rebotes": 0.05
+}
 
-# Aplicar los filtros
-df_filtrado = df[(df["Posición"] == posicion) & 
-                 (df["Minutos"].astype(float).between(minutos[0], minutos[1]))]
+# Calcular Asistencias por minuto
+df_base["Asistencias por minuto"] = df_base["Asistencias"] / df_base["Minutos"]
 
-# Mostrar los resultados filtrados en la sección principal
-st.write(f"Jugadores en la posición {posicion} con entre {minutos[0]} y {minutos[1]} minutos jugados:")
-st.dataframe(df_filtrado)
+# Calcular puntaje ponderado para cada jugador
+df_base["Puntaje"] = (
+    df_base["Asistencias"] * pesos["Asistencias"] +
+    df_base["Puntos"] * pesos["Puntos"] +
+    df_base["Asistencias por minuto"] * pesos["Asistencias por minuto"] +
+    df_base["Robos"] * pesos["Robos"] +
+    df_base["Eficiencia de tiro"] * pesos["Eficiencia de tiro"] +
+    df_base["Minutos"] * pesos["Minutos"] +
+    df_base["Rebotes"] * pesos["Rebotes"]
+)
+
+# Mostrar los jugadores con el puntaje más alto
+st.write("Jugadores destacados en la posición de Base (PG) según su perfil:")
+df_base = df_base.sort_values(by="Puntaje", ascending=False)
+st.dataframe(df_base[['Jugador', 'Puntaje']])
+
+# Mostrar los primeros jugadores con puntaje alto
+st.write("Top 5 jugadores con el mejor perfil de Base:")
+st.dataframe(df_base[['Jugador', 'Puntaje']].head())
