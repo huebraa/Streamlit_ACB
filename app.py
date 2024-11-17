@@ -254,50 +254,47 @@ if perfil_pivot != "Selecciona un perfil":
     st.write(f"Los 5 mejores jugadores para el perfil '{perfil_pivot}' en la posición Pívot (C):")
     st.write(df_pivot[["Jugador", "Posición", perfil_pivot]])
 
+# Roles por defecto para cada posición
+rol_por_defecto = {
+    "Base (PG)": "Two-Way PG",
+    "Escolta (SG)": "Scorer SG",
+    "Alero (SF)": "Scoring SF",
+    "Ala-Pívot (PF)": "Stretch PF",
+    "Pívot (C)": "Defensive C"
+}
 
+# Seleccionar por defecto un perfil para cada posición
+perfil_base = rol_por_defecto["Base (PG)"]
+perfil_escolta = rol_por_defecto["Escolta (SG)"]
+perfil_alero = rol_por_defecto["Alero (SF)"]
+perfil_ala_pivot = rol_por_defecto["Ala-Pívot (PF)"]
+perfil_pivot = rol_por_defecto["Pívot (C)"]
 
-# Función para generar y mostrar una imagen con los 5 mejores jugadores
-def mostrar_top5_imagen(df, posicion, perfil, titulo):
-    fig, ax = plt.subplots(figsize=(8, 4))
-    ax.axis("off")  # Quitar los ejes
-    ax.set_title(titulo, fontsize=16, weight="bold")
+# Obtener los datos para los 5 mejores de cada posición y perfil
+top5_data = {}
 
-    # Crear tabla dentro del gráfico
-    tabla = ax.table(
-        cellText=df.values,
-        colLabels=df.columns,
-        cellLoc="center",
-        loc="center"
-    )
-    tabla.auto_set_font_size(False)
-    tabla.set_fontsize(10)
-    tabla.auto_set_column_width(col=list(range(len(df.columns))))  # Ajustar columnas
+for posicion, perfil in rol_por_defecto.items():
+    df_top5 = df_filtrado[df_filtrado["Posición"] == posicion].sort_values(perfil, ascending=False).head(5)
+    top5_data[posicion] = (perfil, df_top5[["Jugador", perfil]])
 
-    # Mostrar la imagen en Streamlit
-    st.pyplot(fig)
+# Crear una única imagen con todos los roles
+def crear_imagen_top5(top5_data):
+    fig, axs = plt.subplots(5, 1, figsize=(10, 20), constrained_layout=True)  # Crear 5 subgráficos (una por posición)
 
-# Mostrar los 5 mejores jugadores para cada posición y perfil seleccionado en forma de imagen
-if perfil_base != "Selecciona un perfil":
-    df_base = df_filtrado[df_filtrado["Posición"] == "Base (PG)"].sort_values(perfil_base, ascending=False).head(5)
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_base}' en la posición Base (PG):")
-    mostrar_top5_imagen(df_base[["Jugador", "Posición", perfil_base]], "Base (PG)", perfil_base, f"Top 5 Base (PG) - {perfil_base}")
+    for i, (posicion, (perfil, datos)) in enumerate(top5_data.items()):
+        jugadores = datos["Jugador"].values
+        puntuaciones = datos[perfil].values
+        
+        # Títulos y gráficos
+        axs[i].barh(jugadores, puntuaciones, color='skyblue', edgecolor='black')
+        axs[i].set_title(f"{posicion} - {perfil}", fontsize=14, weight='bold')
+        axs[i].invert_yaxis()  # Para que el jugador con mejor puntuación esté arriba
+        axs[i].set_xlabel("Puntuación", fontsize=12)
+        axs[i].set_xlim(0, 100)  # Escala de puntuación estándar
 
-if perfil_escolta != "Selecciona un perfil":
-    df_escolta = df_filtrado[df_filtrado["Posición"] == "Escolta (SG)"].sort_values(perfil_escolta, ascending=False).head(5)
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_escolta}' en la posición Escolta (SG):")
-    mostrar_top5_imagen(df_escolta[["Jugador", "Posición", perfil_escolta]], "Escolta (SG)", perfil_escolta, f"Top 5 Escolta (SG) - {perfil_escolta}")
+    fig.suptitle("Top 5 Jugadores por Posición y Perfil", fontsize=18, weight='bold')
+    return fig
 
-if perfil_alero != "Selecciona un perfil":
-    df_alero = df_filtrado[df_filtrado["Posición"] == "Alero (SF)"].sort_values(perfil_alero, ascending=False).head(5)
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_alero}' en la posición Alero (SF):")
-    mostrar_top5_imagen(df_alero[["Jugador", "Posición", perfil_alero]], "Alero (SF)", perfil_alero, f"Top 5 Alero (SF) - {perfil_alero}")
-
-if perfil_ala_pivot != "Selecciona un perfil":
-    df_ala_pivot = df_filtrado[df_filtrado["Posición"] == "Ala-Pívot (PF)"].sort_values(perfil_ala_pivot, ascending=False).head(5)
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_ala_pivot}' en la posición Ala-Pívot (PF):")
-    mostrar_top5_imagen(df_ala_pivot[["Jugador", "Posición", perfil_ala_pivot]], "Ala-Pívot (PF)", perfil_ala_pivot, f"Top 5 Ala-Pívot (PF) - {perfil_ala_pivot}")
-
-if perfil_pivot != "Selecciona un perfil":
-    df_pivot = df_filtrado[df_filtrado["Posición"] == "Pívot (C)"].sort_values(perfil_pivot, ascending=False).head(5)
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_pivot}' en la posición Pívot (C):")
-    mostrar_top5_imagen(df_pivot[["Jugador", "Posición", perfil_pivot]], "Pívot (C)", perfil_pivot, f"Top 5 Pívot (C) - {perfil_pivot}")
+# Crear y mostrar la imagen en Streamlit
+fig = crear_imagen_top5(top5_data)
+st.pyplot(fig)
