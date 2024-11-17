@@ -263,95 +263,50 @@ rol_por_defecto = {
     "Pívot (C)": "Defensive C"
 }
 
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
+import streamlit as st
+import pandas as pd
 
-# Roles por defecto para cada posición
-rol_por_defecto = {
-    "Base (PG)": "Two-Way PG",
-    "Escolta (SG)": "Scorer SG",
-    "Alero (SF)": "Scoring SF",
-    "Ala-Pívot (PF)": "Stretch PF",
-    "Pívot (C)": "Defensive C"
+# Datos de ejemplo (puedes reemplazar con tus datos reales)
+data = {
+    "Base (PG)": ["Jugador A (95.0)", "Jugador B (92.5)", "Jugador C (89.0)", "Jugador D (87.5)", "Jugador E (85.0)"],
+    "Escolta (SG)": ["Jugador F (94.0)", "Jugador G (91.0)", "Jugador H (89.5)", "Jugador I (88.0)", "Jugador J (86.5)"],
+    "Alero (SF)": ["Jugador K (93.0)", "Jugador L (91.0)", "Jugador M (90.0)", "Jugador N (88.5)", "Jugador O (86.0)"],
+    "Ala-Pívot (PF)": ["Jugador P (92.5)", "Jugador Q (91.5)", "Jugador R (90.0)", "Jugador S (88.0)", "Jugador T (87.0)"],
+    "Pívot (C)": ["Jugador U (95.0)", "Jugador V (93.5)", "Jugador W (92.0)", "Jugador X (90.5)", "Jugador Y (89.0)"]
 }
 
-# Seleccionar por defecto un perfil para cada posición
-perfil_base = rol_por_defecto["Base (PG)"]
-perfil_escolta = rol_por_defecto["Escolta (SG)"]
-perfil_alero = rol_por_defecto["Alero (SF)"]
-perfil_ala_pivot = rol_por_defecto["Stretch PF"]
-perfil_pivot = rol_por_defecto["Defensive C"]
+# Títulos principales
+st.title("Mejores Jugadores por Posición - Baloncesto")
+st.subheader("Datos procesados a partir de métricas personalizadas")
+st.caption("Los puntajes son normalizados, siendo 100.0 el mejor jugador en cada posición.")
 
-# Obtener los datos para los mejores jugadores de cada posición y perfil
-top5_data = {}
+# Dividir en columnas y mostrar datos
+cols = st.columns(3)
 
-for posicion, perfil in rol_por_defecto.items():
-    df_top5 = df_filtrado[df_filtrado["Posición"] == posicion].sort_values(perfil, ascending=False).head(5)
-    top5_data[posicion] = (perfil, df_top5[["Jugador", perfil]])
+with cols[0]:  # Primera columna
+    st.subheader("Base (PG)")
+    for jugador in data["Base (PG)"]:
+        st.write(jugador)
 
-# Dibujar la cancha de baloncesto
-def draw_court(ax=None, color="black", lw=2):
-    if ax is None:
-        ax = plt.gca()
+    st.subheader("Escolta (SG)")
+    for jugador in data["Escolta (SG)"]:
+        st.write(jugador)
 
-    # Dibujar la cancha
-    ax.add_patch(patches.Rectangle((0, 0), 50, 94, linewidth=lw, color=color, fill=False))  # Contorno
-    ax.add_patch(patches.Circle((25, 47), 6, linewidth=lw, color=color, fill=False))       # Círculo central
-    ax.add_patch(patches.Rectangle((17, 0), 16, 19, linewidth=lw, color=color, fill=False))  # Área pintada abajo
-    ax.add_patch(patches.Rectangle((17, 75), 16, 19, linewidth=lw, color=color, fill=False)) # Área pintada arriba
-    ax.add_patch(patches.Circle((25, 5.25), 1.5, linewidth=lw, color=color, fill=False))     # Aro abajo
-    ax.add_patch(patches.Circle((25, 88.75), 1.5, linewidth=lw, color=color, fill=False))    # Aro arriba
+with cols[1]:  # Segunda columna
+    st.subheader("Alero (SF)")
+    for jugador in data["Alero (SF)"]:
+        st.write(jugador)
 
-    ax.plot([19, 31], [19, 19], color=color, linewidth=lw)   # Línea libre abajo
-    ax.plot([19, 31], [75, 75], color=color, linewidth=lw)   # Línea libre arriba
-    ax.plot([25, 25], [0, 94], color=color, linewidth=lw)    # Línea central
+with cols[2]:  # Tercera columna
+    st.subheader("Ala-Pívot (PF)")
+    for jugador in data["Ala-Pívot (PF)"]:
+        st.write(jugador)
 
-    ax.set_xlim(0, 50)
-    ax.set_ylim(0, 94)
-    ax.set_aspect(1)
+    st.subheader("Pívot (C)")
+    for jugador in data["Pívot (C)"]:
+        st.write(jugador)
 
-# Crear la imagen de la cancha con jugadores posicionados
-def crear_imagen_cancha(top5_data):
-    fig, ax = plt.subplots(figsize=(8, 15))
-    draw_court(ax)
-
-    # Coordenadas aproximadas de cada posición en la cancha
-    posiciones_coords = {
-        "Base (PG)": (25, 10),
-        "Escolta (SG)": (15, 35),
-        "Alero (SF)": (35, 35),
-        "Ala-Pívot (PF)": (20, 75),
-        "Pívot (C)": (30, 75)
-    }
-
-    # Colocar los jugadores en sus posiciones
-    for posicion, (perfil, datos) in top5_data.items():
-        x, y = posiciones_coords[posicion]
-        texto = f"{posicion}\n({perfil})\n\n"
-        for jugador, puntuacion in zip(datos["Jugador"], datos[perfil]):
-            texto += f"{jugador} ({puntuacion:.1f})\n"
-
-        # Agregar texto al gráfico
-        ax.text(
-            x, y, texto,
-            ha="center", va="center",
-            fontsize=10, color="black",
-            bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.5")
-        )
-
-    # Título general
-    fig.suptitle(
-        "Top Jugadores por Posición",
-        fontsize=16,
-        weight="bold",
-        color="black",
-        y=0.92
-    )
-
-    return fig
-
-# Crear y mostrar la imagen en Streamlit
-fig = crear_imagen_cancha(top5_data)
-st.pyplot(fig)
+# Pie de página
+st.caption("Reporte generado automáticamente.")
 
 
