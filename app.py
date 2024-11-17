@@ -277,24 +277,26 @@ for posicion, perfil in rol_por_defecto.items():
     df_top5 = df_filtrado[df_filtrado["Posición"] == posicion].sort_values(perfil, ascending=False).head(5)
     top5_data[posicion] = (perfil, df_top5[["Jugador", perfil]])
 
-# Crear una única imagen con todos los roles
-def crear_imagen_top5(top5_data):
-    fig, axs = plt.subplots(5, 1, figsize=(10, 20), constrained_layout=True)  # Crear 5 subgráficos (una por posición)
+# Crear una única imagen con los jugadores organizados por posición y perfil
+def crear_imagen_top5_texto(top5_data):
+    fig, ax = plt.subplots(figsize=(10, 14))
+    ax.axis("off")  # Quitar los ejes
 
-    for i, (posicion, (perfil, datos)) in enumerate(top5_data.items()):
-        jugadores = datos["Jugador"].values
-        puntuaciones = datos[perfil].values
-        
-        # Títulos y gráficos
-        axs[i].barh(jugadores, puntuaciones, color='skyblue', edgecolor='black')
-        axs[i].set_title(f"{posicion} - {perfil}", fontsize=14, weight='bold')
-        axs[i].invert_yaxis()  # Para que el jugador con mejor puntuación esté arriba
-        axs[i].set_xlabel("Puntuación", fontsize=12)
-        axs[i].set_xlim(0, 100)  # Escala de puntuación estándar
+    y_offset = 1.0  # Posición inicial en el eje Y
 
-    fig.suptitle("Top 5 Jugadores por Posición y Perfil", fontsize=18, weight='bold')
+    for posicion, (perfil, datos) in top5_data.items():
+        ax.text(0.05, y_offset, f"{posicion} - {perfil}", fontsize=14, weight="bold", va="top", ha="left")
+        y_offset -= 0.05  # Ajustar espacio entre título y jugadores
+
+        for jugador, puntuacion in zip(datos["Jugador"], datos[perfil]):
+            ax.text(0.1, y_offset, f"- {jugador}: {puntuacion:.2f}", fontsize=12, va="top", ha="left")
+            y_offset -= 0.04  # Espacio entre jugadores
+
+        y_offset -= 0.05  # Espacio extra entre posiciones
+
+    fig.suptitle("Top 5 Jugadores por Posición y Perfil", fontsize=18, weight="bold")
     return fig
 
 # Crear y mostrar la imagen en Streamlit
-fig = crear_imagen_top5(top5_data)
+fig = crear_imagen_top5_texto(top5_data)
 st.pyplot(fig)
