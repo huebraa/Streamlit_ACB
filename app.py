@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-
 
 # Función para cargar los datos
 @st.cache
@@ -253,60 +251,3 @@ if perfil_pivot != "Selecciona un perfil":
     df_pivot = df_filtrado[df_filtrado["Posición"] == "Pívot (C)"].sort_values(perfil_pivot, ascending=False).head(5)
     st.write(f"Los 5 mejores jugadores para el perfil '{perfil_pivot}' en la posición Pívot (C):")
     st.write(df_pivot[["Jugador", "Posición", perfil_pivot]])
-
-# Roles por defecto para cada posición
-rol_por_defecto = {
-    "Base (PG)": "Two-Way PG",
-    "Escolta (SG)": "Scorer SG",
-    "Alero (SF)": "Scoring SF",
-    "Ala-Pívot (PF)": "Stretch PF",
-    "Pívot (C)": "Defensive C"
-}
-
-import streamlit as st
-import pandas as pd
-
-# Datos de ejemplo (puedes reemplazar con tus datos reales)
-data = {
-    "Base (PG)": ["Jugador A (95.0)", "Jugador B (92.5)", "Jugador C (89.0)", "Jugador D (87.5)", "Jugador E (85.0)"],
-    "Escolta (SG)": ["Jugador F (94.0)", "Jugador G (91.0)", "Jugador H (89.5)", "Jugador I (88.0)", "Jugador J (86.5)"],
-    "Alero (SF)": ["Jugador K (93.0)", "Jugador L (91.0)", "Jugador M (90.0)", "Jugador N (88.5)", "Jugador O (86.0)"],
-    "Ala-Pívot (PF)": ["Jugador P (92.5)", "Jugador Q (91.5)", "Jugador R (90.0)", "Jugador S (88.0)", "Jugador T (87.0)"],
-    "Pívot (C)": ["Jugador U (95.0)", "Jugador V (93.5)", "Jugador W (92.0)", "Jugador X (90.5)", "Jugador Y (89.0)"]
-}
-
-# Títulos principales
-st.title("Mejores Jugadores por Posición - Baloncesto")
-st.subheader("Datos procesados a partir de métricas personalizadas")
-st.caption("Los puntajes son normalizados, siendo 100.0 el mejor jugador en cada posición.")
-
-# Dividir en columnas y mostrar datos
-cols = st.columns(3)
-
-with cols[0]:  # Primera columna
-    st.subheader("Base (PG)")
-    for jugador in data["Base (PG)"]:
-        st.write(jugador)
-
-    st.subheader("Escolta (SG)")
-    for jugador in data["Escolta (SG)"]:
-        st.write(jugador)
-
-with cols[1]:  # Segunda columna
-    st.subheader("Alero (SF)")
-    for jugador in data["Alero (SF)"]:
-        st.write(jugador)
-
-with cols[2]:  # Tercera columna
-    st.subheader("Ala-Pívot (PF)")
-    for jugador in data["Ala-Pívot (PF)"]:
-        st.write(jugador)
-
-    st.subheader("Pívot (C)")
-    for jugador in data["Pívot (C)"]:
-        st.write(jugador)
-
-# Pie de página
-st.caption("Reporte generado automáticamente.")
-
-
