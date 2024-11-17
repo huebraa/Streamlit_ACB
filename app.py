@@ -263,6 +263,17 @@ rol_por_defecto = {
     "Pívot (C)": "Defensive C"
 }
 
+import matplotlib.pyplot as plt
+
+# Roles por defecto para cada posición
+rol_por_defecto = {
+    "Base (PG)": "Two-Way PG",
+    "Escolta (SG)": "Scorer SG",
+    "Alero (SF)": "Scoring SF",
+    "Ala-Pívot (PF)": "Stretch PF",
+    "Pívot (C)": "Defensive C"
+}
+
 # Seleccionar por defecto un perfil para cada posición
 perfil_base = rol_por_defecto["Base (PG)"]
 perfil_escolta = rol_por_defecto["Escolta (SG)"]
@@ -277,26 +288,63 @@ for posicion, perfil in rol_por_defecto.items():
     df_top5 = df_filtrado[df_filtrado["Posición"] == posicion].sort_values(perfil, ascending=False).head(5)
     top5_data[posicion] = (perfil, df_top5[["Jugador", perfil]])
 
-# Crear una única imagen con los jugadores organizados por posición y perfil
-def crear_imagen_top5_texto(top5_data):
-    fig, ax = plt.subplots(figsize=(10, 14))
-    ax.axis("off")  # Quitar los ejes
+# Crear la imagen con el diseño estilo Best11Scouting
+def crear_imagen_top5_estilo(top5_data):
+    fig, ax = plt.subplots(figsize=(12, 16))
+    ax.axis("off")  # Ocultar los ejes
 
-    y_offset = 1.0  # Posición inicial en el eje Y
+    # Fondo
+    ax.set_facecolor("#f0f0f0")  # Color de fondo claro
+
+    # Coordenadas iniciales para el diseño
+    x_start = 0.1
+    y_start = 0.95
+    y_step_title = 0.08
+    y_step_player = 0.05
+    box_width = 0.8
+    box_height = 0.05
 
     for posicion, (perfil, datos) in top5_data.items():
-        ax.text(0.05, y_offset, f"{posicion} - {perfil}", fontsize=14, weight="bold", va="top", ha="left")
-        y_offset -= 0.05  # Ajustar espacio entre título y jugadores
+        # Agregar título de posición y perfil
+        ax.text(
+            x_start,
+            y_start,
+            f"{posicion} - {perfil}",
+            fontsize=16,
+            weight="bold",
+            color="black",
+            ha="left",
+            va="center",
+            bbox=dict(facecolor="#dcdcdc", edgecolor="none", boxstyle="round,pad=0.3")
+        )
+        y_start -= y_step_title
 
+        # Agregar jugadores
         for jugador, puntuacion in zip(datos["Jugador"], datos[perfil]):
-            ax.text(0.1, y_offset, f"- {jugador}: {puntuacion:.2f}", fontsize=12, va="top", ha="left")
-            y_offset -= 0.04  # Espacio entre jugadores
+            ax.text(
+                x_start + 0.05,
+                y_start,
+                f"{jugador}: {puntuacion:.2f}",
+                fontsize=14,
+                color="black",
+                ha="left",
+                va="center"
+            )
+            y_start -= y_step_player
 
-        y_offset -= 0.05  # Espacio extra entre posiciones
+        y_start -= y_step_title  # Separación entre posiciones
 
-    fig.suptitle("Top 5 Jugadores por Posición y Perfil", fontsize=18, weight="bold")
+    # Título general
+    fig.suptitle(
+        "Top 5 Jugadores por Posición y Perfil",
+        fontsize=20,
+        weight="bold",
+        color="black",
+        y=0.98
+    )
     return fig
 
 # Crear y mostrar la imagen en Streamlit
-fig = crear_imagen_top5_texto(top5_data)
+fig = crear_imagen_top5_estilo(top5_data)
 st.pyplot(fig)
+
