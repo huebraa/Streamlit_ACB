@@ -264,6 +264,7 @@ rol_por_defecto = {
 }
 
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 
 # Roles por defecto para cada posición
 rol_por_defecto = {
@@ -278,73 +279,79 @@ rol_por_defecto = {
 perfil_base = rol_por_defecto["Base (PG)"]
 perfil_escolta = rol_por_defecto["Escolta (SG)"]
 perfil_alero = rol_por_defecto["Alero (SF)"]
-perfil_ala_pivot = rol_por_defecto["Ala-Pívot (PF)"]
-perfil_pivot = rol_por_defecto["Pívot (C)"]
+perfil_ala_pivot = rol_por_defecto["Stretch PF"]
+perfil_pivot = rol_por_defecto["Defensive C"]
 
-# Obtener los datos para los 5 mejores de cada posición y perfil
+# Obtener los datos para los mejores jugadores de cada posición y perfil
 top5_data = {}
 
 for posicion, perfil in rol_por_defecto.items():
     df_top5 = df_filtrado[df_filtrado["Posición"] == posicion].sort_values(perfil, ascending=False).head(5)
     top5_data[posicion] = (perfil, df_top5[["Jugador", perfil]])
 
-# Crear la imagen con el diseño estilo Best11Scouting
-def crear_imagen_top5_estilo(top5_data):
-    fig, ax = plt.subplots(figsize=(12, 16))
-    ax.axis("off")  # Ocultar los ejes
+# Dibujar la cancha de baloncesto
+def draw_court(ax=None, color="black", lw=2):
+    if ax is None:
+        ax = plt.gca()
 
-    # Fondo
-    ax.set_facecolor("#f0f0f0")  # Color de fondo claro
+    # Dibujar la cancha
+    ax.add_patch(patches.Rectangle((0, 0), 50, 94, linewidth=lw, color=color, fill=False))  # Contorno
+    ax.add_patch(patches.Circle((25, 47), 6, linewidth=lw, color=color, fill=False))       # Círculo central
+    ax.add_patch(patches.Rectangle((17, 0), 16, 19, linewidth=lw, color=color, fill=False))  # Área pintada abajo
+    ax.add_patch(patches.Rectangle((17, 75), 16, 19, linewidth=lw, color=color, fill=False)) # Área pintada arriba
+    ax.add_patch(patches.Circle((25, 5.25), 1.5, linewidth=lw, color=color, fill=False))     # Aro abajo
+    ax.add_patch(patches.Circle((25, 88.75), 1.5, linewidth=lw, color=color, fill=False))    # Aro arriba
 
-    # Coordenadas iniciales para el diseño
-    x_start = 0.1
-    y_start = 0.95
-    y_step_title = 0.08
-    y_step_player = 0.05
-    box_width = 0.8
-    box_height = 0.05
+    ax.plot([19, 31], [19, 19], color=color, linewidth=lw)   # Línea libre abajo
+    ax.plot([19, 31], [75, 75], color=color, linewidth=lw)   # Línea libre arriba
+    ax.plot([25, 25], [0, 94], color=color, linewidth=lw)    # Línea central
 
+    ax.set_xlim(0, 50)
+    ax.set_ylim(0, 94)
+    ax.set_aspect(1)
+
+# Crear la imagen de la cancha con jugadores posicionados
+def crear_imagen_cancha(top5_data):
+    fig, ax = plt.subplots(figsize=(8, 15))
+    draw_court(ax)
+
+    # Coordenadas aproximadas de cada posición en la cancha
+    posiciones_coords = {
+        "Base (PG)": (25, 10),
+        "Escolta (SG)": (15, 35),
+        "Alero (SF)": (35, 35),
+        "Ala-Pívot (PF)": (20, 75),
+        "Pívot (C)": (30, 75)
+    }
+
+    # Colocar los jugadores en sus posiciones
     for posicion, (perfil, datos) in top5_data.items():
-        # Agregar título de posición y perfil
-        ax.text(
-            x_start,
-            y_start,
-            f"{posicion} - {perfil}",
-            fontsize=16,
-            weight="bold",
-            color="black",
-            ha="left",
-            va="center",
-            bbox=dict(facecolor="#dcdcdc", edgecolor="none", boxstyle="round,pad=0.3")
-        )
-        y_start -= y_step_title
-
-        # Agregar jugadores
+        x, y = posiciones_coords[posicion]
+        texto = f"{posicion}\n({perfil})\n\n"
         for jugador, puntuacion in zip(datos["Jugador"], datos[perfil]):
-            ax.text(
-                x_start + 0.05,
-                y_start,
-                f"{jugador}: {puntuacion:.2f}",
-                fontsize=14,
-                color="black",
-                ha="left",
-                va="center"
-            )
-            y_start -= y_step_player
+            texto += f"{jugador} ({puntuacion:.1f})\n"
 
-        y_start -= y_step_title  # Separación entre posiciones
+        # Agregar texto al gráfico
+        ax.text(
+            x, y, texto,
+            ha="center", va="center",
+            fontsize=10, color="black",
+            bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.5")
+        )
 
     # Título general
     fig.suptitle(
-        "Top 5 Jugadores por Posición y Perfil",
-        fontsize=20,
+        "Top Jugadores por Posición",
+        fontsize=16,
         weight="bold",
         color="black",
-        y=0.98
+        y=0.92
     )
+
     return fig
 
 # Crear y mostrar la imagen en Streamlit
-fig = crear_imagen_top5_estilo(top5_data)
+fig = crear_imagen_cancha(top5_data)
 st.pyplot(fig)
+
 
