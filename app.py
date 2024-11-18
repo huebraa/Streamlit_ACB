@@ -198,11 +198,11 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
 
     # Coordenadas ajustadas para cada posición en una lista simple
     posiciones = {
-        "Base (PG)": (5, 1.2),            # Centro abajo
-        "Escolta (SG)": (1.5, 4),         # Arriba izquierda
-        "Alero (SF)": (8, 4),             # Arriba derecha
-        "Ala-Pívot (PF)": (1.5, 5.5),     # Arriba izquierda más alto
-        "Pívot (C)": (8, 5.5)             # Arriba derecha más alto
+        "Base (PG)": (4, 1.2),            # Centro abajo
+        "Escolta (SG)": (1.5, 2),         # Arriba izquierda
+        "Alero (SF)": (7, 2.4),             # Arriba derecha
+        "Ala-Pívot (PF)": (1.7, 3.8),     # Arriba izquierda más alto
+        "Pívot (C)": (6, 4)             # Arriba derecha más alto
     }
 
     # Tamaño de fuente ajustado a 44
