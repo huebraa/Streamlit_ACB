@@ -2,6 +2,15 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
 
+# ----------------------------------------------------------------------------
+# TÍTULO: Visualización y Análisis de Jugadores de Baloncesto por Perfil
+# DESCRIPCIÓN: Este proyecto permite analizar las estadísticas de jugadores de baloncesto, 
+# clasificándolos según su posición y perfil de juego. Los jugadores se filtran 
+# por su rendimiento (en minutos jugados y otras métricas) y se visualizan en gráficos 
+# que muestran sus puntos fuertes de manera comparativa.
+# CREADO POR: [Tu Nombre o Nombre de la Marca]
+# ----------------------------------------------------------------------------
+
 # Función para cargar los datos
 @st.cache_data
 def cargar_datos():
@@ -191,7 +200,7 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
     jugadores_equipo = df_filtrado[df_filtrado["Equipo"] == equipo_seleccionado]
     
     # Crear figura y configurarla
-    fig, ax = plt.subplots(figsize=(12, 8))
+    fig, ax = plt.subplots(figsize=(12, 12))
     fig.patch.set_facecolor('white')  # Fondo blanco
     ax.set_facecolor('white')  # Fondo blanco
     ax.axis('off')  # Quitar ejes
