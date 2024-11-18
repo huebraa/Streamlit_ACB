@@ -166,13 +166,17 @@ def calcular_puntuacion(row, perfil):
 # Filtrado por mínimo de minutos
 minutos_minimos = st.sidebar.slider(
     "Selecciona el mínimo de minutos jugados",
-    min_value=int(df["Minutos"].min()),
-    max_value=int(df["Minutos"].max()),
-    value=int(df["Minutos"].min()),
+    min_value=int(df["MIN"].min()),
+    max_value=int(df["MIN"].max()),
+    value=int(df["MIN"].min()),
     step=1
 )
 
-df_filtrado = df[df["Minutos"] >= minutos_minimos]
+df_filtrado = df[df["MIN"] >= minutos_minimos]
+
+# Mostrar la tabla general de datos filtrados
+st.write("Tabla General de Jugadores (sin renombrar columnas):")
+st.dataframe(df_filtrado)
 
 # Agregar las puntuaciones para los perfiles de todas las posiciones
 for posicion, perfiles in perfiles_posiciones.items():
