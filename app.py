@@ -1,58 +1,23 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+# Configuración inicial de pandas para mostrar todas las columnas
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.width', None)
 
-# Configuraciones de pandas para mostrar todas las columnas
-pd.set_option('display.max_columns', None)  # Mostrar todas las columnas
-pd.set_option('display.max_rows', None)     # Mostrar todas las filas
-pd.set_option('display.width', None)        # Ajustar el ancho del terminal
-
-# Función para cargar los datos
+# Cargar datos
 @st.cache
 def cargar_datos():
     return pd.read_csv("estadisticas_completas.csv")
 
-# Cargar los datos
 df = cargar_datos()
 
-# Mapeo de nombres de las columnas para que se vean en español
-columnas_espanol = {
-    "MIN": "Minutos",
-    "Posición": "Posición",
-    "TS%": "TS%",
-    "eFG%": "eFG%",
-    "ORB%": "ORB%",
-    "DRB%": "DRB%",
-    "TRB%": "TRB%",
-    "AST%": "AST%",
-    "TOV%": "TOV%",
-    "STL%": "STL%",
-    "BLK%": "BLK%",
-    "USG%": "USG%",
-    "PPR": "PPR",
-    "PPS": "PPS",
-    "ORtg": "ORtg",
-    "DRtg": "DRtg",
-    "eDiff": "eDiff",
-    "FIC": "FIC",
-    "PER": "PER",
-    "PTS": "PTS",
-    "FG%": "FG%",
-    "3P%": "3P%",
-    "FT%": "FT%",
-    "PF": "PF",
-    "Ast/TO": "Ast/TO",
-    "HOB" : "HOB",
-    "Stl/TO" : "Stl/TO"
-}
+# Mostrar columnas originales
+st.write("Columnas disponibles en el archivo CSV:")
+st.write(df.columns.tolist())
 
-# Renombrar las columnas
-df = df.rename(columns=columnas_espanol)
 
-# Comprobar si faltan columnas tras el renombrado
-columnas_faltantes = set(columnas_espanol.keys()) - set(df.columns)
-if columnas_faltantes:
-    st.warning(f"Columnas que no se encontraron en el DataFrame: {columnas_faltantes}")
 
 
 # Perfiles por posición
