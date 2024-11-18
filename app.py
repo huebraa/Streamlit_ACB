@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 # Función para cargar los datos
 @st.cache
 def cargar_datos():
-    return pd.read_csv("estadisticas_acb_completas.csv")
+    return pd.read_csv("estadisticas_acb_con_posicion.csv")
 
 # Cargar los datos
 df = cargar_datos()
