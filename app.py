@@ -191,25 +191,28 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
     jugadores_equipo = df_filtrado[df_filtrado["Equipo"] == equipo_seleccionado]
     
     # Crear figura y configurarla
-    fig, ax = plt.subplots(figsize=(10, 7))
+    fig, ax = plt.subplots(figsize=(12, 8))
     fig.patch.set_facecolor('white')  # Fondo blanco
     ax.set_facecolor('white')  # Fondo blanco
     ax.axis('off')  # Quitar ejes
 
     # Coordenadas ajustadas para cada posición en una lista simple
     posiciones = {
-        "Base (PG)": (5, 1),           # Centro abajo
-        "Escolta (SG)": (1.5, 4.5),     # Arriba izquierda
-        "Alero (SF)": (8, 4.5),         # Arriba derecha
-        "Ala-Pívot (PF)": (1.5, 6),     # Arriba izquierda más alto
-        "Pívot (C)": (8, 6)             # Arriba derecha más alto
+        "Base (PG)": (5, 1.2),            # Centro abajo
+        "Escolta (SG)": (1.5, 4),         # Arriba izquierda
+        "Alero (SF)": (8, 4),             # Arriba derecha
+        "Ala-Pívot (PF)": (1.5, 5.5),     # Arriba izquierda más alto
+        "Pívot (C)": (8, 5.5)             # Arriba derecha más alto
     }
 
-    # Tamaño de fuente ajustado para una buena legibilidad
+    # Tamaño de fuente ajustado a 44
     font_size = 44
 
     # Recorrer cada posición y mostrar los jugadores
     for posicion, (x, y) in posiciones.items():
+        # Título de la posición
+        ax.text(x, y + 0.2, posicion, ha="center", va="center", fontsize=font_size, color="black", weight='bold')
+
         # Obtener los jugadores de esta posición
         jugadores_posicion = jugadores_equipo[jugadores_equipo["Posición"] == posicion]
         if not jugadores_posicion.empty:
@@ -227,14 +230,15 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
             # Colocar la lista en la coordenada correspondiente
             ax.text(x, y, lista_jugadores, ha="center", va="center", fontsize=font_size, color="black", weight='bold')
 
-            # Ajustar la coordenada 'y' para la siguiente posición
-            y -= 1.5  # Ajustar para el siguiente jugador si hay más
+            # Ajustar la coordenada 'y' para la siguiente posición si hay más de un jugador
+            y -= 2  # Ajustar para el siguiente jugador si hay más
 
-    # Título
-    ax.set_title(f"Jugadores del equipo {equipo_seleccionado} por posición", fontsize=16, color="black")
-    
+    # Título general
+    ax.set_title(f"Jugadores del equipo {equipo_seleccionado} por posición", fontsize=20, color="black", weight='bold')
+
     # Mostrar
     st.pyplot(fig)
+
 
 
 
