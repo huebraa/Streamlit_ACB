@@ -14,6 +14,7 @@ df = cargar_datos()
 columnas_espanol = {
     "MIN": "Minutos",
     "Posición": "Posición",
+    "Equipo": "Equipo",  # Asegúrate de que "Equipo" esté en el CSV
     "TS%": "TS%",
     "eFG%": "eFG%",
     "ORB%": "ORB%",
@@ -162,6 +163,7 @@ perfiles_posiciones = {
     }
 }
 
+
 # Normalización de estadísticas a percentiles por posición
 estadisticas_relevantes = set(
     stat for perfiles in perfiles_posiciones.values() for perfil in perfiles.values() for stat in perfil.keys()
@@ -200,30 +202,32 @@ for posicion, perfiles in perfiles_posiciones.items():
     for perfil_nombre, perfil in perfiles.items():
         df_filtrado[perfil_nombre] = df_filtrado.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
 
-# Función para filtrar y mostrar los mejores jugadores
-def mostrar_mejores_jugadores(df, posicion, perfil_seleccionado, titulo):
-    """Filtra y muestra los mejores jugadores para una posición y perfil."""
-    if perfil_seleccionado != "Selecciona un perfil":
-        df_posicion = df[df["Posición"] == posicion].sort_values(perfil_seleccionado, ascending=False).head(5)
-        st.subheader(titulo)
-        st.dataframe(df_posicion[["Jugador", "Posición", perfil_seleccionado]])
+# Función para obtener el perfil con más puntuación
+def obtener_perfil_maximo(row, perfiles):
+    """Obtiene el perfil con la puntuación más alta para una fila."""
+    puntuaciones = {perfil: row.get(perfil, 0) for perfil in perfiles}
+    return max(puntuaciones, key=puntuaciones.get)
 
-# Mostrar la tabla general de puntuaciones de los perfiles (sin filtros de posición ni perfil)
-st.write("Tabla General de Jugadores con sus puntuaciones por perfil:")
-perfil_columnas = [col for col in df_filtrado.columns if col not in ["Jugador", "Posición", "Minutos"]]
-st.dataframe(df_filtrado[["Jugador", "Posición"] + perfil_columnas])
+# Obtener perfiles con más puntuación por posición
+df_filtrado["Perfil Principal"] = df_filtrado.apply(
+    lambda row: obtener_perfil_maximo(row, perfiles_posiciones[row["Posición"]].keys()),
+    axis=1
+)
 
-# Filtros de perfil por posición
-st.sidebar.header("Selecciona el perfil para cada posición")
-perfil_base = st.sidebar.selectbox("Perfil Base (PG)", ["Selecciona un perfil"] + list(perfiles_posiciones["Base (PG)"].keys()))
-perfil_escolta = st.sidebar.selectbox("Perfil Escolta (SG)", ["Selecciona un perfil"] + list(perfiles_posiciones["Escolta (SG)"].keys()))
-perfil_alero = st.sidebar.selectbox("Perfil Alero (SF)", ["Selecciona un perfil"] + list(perfiles_posiciones["Alero (SF)"].keys()))
-perfil_ala_pivot = st.sidebar.selectbox("Perfil Ala-Pívot (PF)", ["Selecciona un perfil"] + list(perfiles_posiciones["Ala-Pívot (PF)"].keys()))
-perfil_pivot = st.sidebar.selectbox("Perfil Pívot (C)", ["Selecciona un perfil"] + list(perfiles_posiciones["Pívot (C)"].keys()))
+# Filtro adicional por equipo y posición
+st.sidebar.header("Filtrar jugadores por equipo y posición")
+equipo_seleccionado = st.sidebar.selectbox("Selecciona un equipo", ["Todos"] + sorted(df_filtrado["Equipo"].unique()))
+posicion_seleccionada = st.sidebar.selectbox("Selecciona una posición", ["Todos"] + sorted(df_filtrado["Posición"].unique()))
 
-# Mostrar los 5 mejores jugadores para cada posición y perfil seleccionado
-mostrar_mejores_jugadores(df_filtrado, "Base (PG)", perfil_base, f"Los 5 mejores jugadores para el perfil '{perfil_base}' en la posición Base (PG):")
-mostrar_mejores_jugadores(df_filtrado, "Escolta (SG)", perfil_escolta, f"Los 5 mejores jugadores para el perfil '{perfil_escolta}' en la posición Escolta (SG):")
-mostrar_mejores_jugadores(df_filtrado, "Alero (SF)", perfil_alero, f"Los 5 mejores jugadores para el perfil '{perfil_alero}' en la posición Alero (SF):")
-mostrar_mejores_jugadores(df_filtrado, "Ala-Pívot (PF)", perfil_ala_pivot, f"Los 5 mejores jugadores para el perfil '{perfil_ala_pivot}' en la posición Ala-Pívot (PF):")
-mostrar_mejores_jugadores(df_filtrado, "Pívot (C)", perfil_pivot, f"Los 5 mejores jugadores para el perfil '{perfil_pivot}' en la posición Pívot (C):")
+# Aplicar filtros
+df_filtrado_equipo_posicion = df_filtrado.copy()
+if equipo_seleccionado != "Todos":
+    df_filtrado_equipo_posicion = df_filtrado_equipo_posicion[df_filtrado_equipo_posicion["Equipo"] == equipo_seleccionado]
+if posicion_seleccionada != "Todos":
+    df_filtrado_equipo_posicion = df_filtrado_equipo_posicion[df_filtrado_equipo_posicion["Posición"] == posicion_seleccionada]
+
+# Mostrar resultados
+if st.button("Mostrar jugadores filtrados en una nueva ventana"):
+    with st.expander("Resultados Filtrados", expanded=True):
+        st.write(f"Jugadores del equipo **{equipo_seleccionado}** en la posición **{posicion_seleccionada}**:")
+        st.dataframe(df_filtrado_equipo_posicion[["Jugador", "Equipo", "Posición", "Perfil Principal"]])
