@@ -179,11 +179,12 @@ def calcular_puntuacion(row, perfil):
     for stat, peso in perfil.items():
         if stat in row:
             try:
-                valor = float(row[stat])
+                valor = float(row[stat]) if isinstance(row[stat], (int, float)) else 0  # Asegura que sea un número
                 puntuacion += valor * peso
             except ValueError:
                 st.warning(f"Advertencia: No se pudo convertir el valor de {stat} para el jugador {row.get('Jugador', 'Desconocido')}. Valor: {row[stat]}")
     return puntuacion
+
 
 
 def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
