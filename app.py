@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 # Función para cargar los datos
 @st.cache
 def cargar_datos():
+    # Leer los datos del archivo CSV
     return pd.read_csv("estadisticas_completas.csv")
 
 # Cargar los datos
@@ -12,8 +13,6 @@ df = cargar_datos()
 
 # Mapeo de nombres de las columnas para que se vean en español
 columnas_espanol = {
-    "MIN": "Minutos",
-    "Posición": "Posición",
     "TS%": "TS%",
     "eFG%": "eFG%",
     "ORB%": "ORB%",
@@ -31,35 +30,43 @@ columnas_espanol = {
     "eDiff": "eDiff",
     "FIC": "FIC",
     "PER": "PER",
+    "MIN": "Minutos",
     "PTS": "PTS",
     "FG%": "FG%",
     "3P%": "3P%",
     "FT%": "FT%",
     "PF": "PF",
-    "GP": "Juegos Jugados",
-    "3PA": "3P Intentos",
-    "3PM": "3P Hechos",
-    "FTA": "FT Intentos",
-    "FTM": "FT Hechos",
-    "Dbl Dbl": "Doble Doble",
-    "Tpl Dbl": "Triple Doble",
-    "High Game": "Juego Alto",
-    "Techs": "Técnicas",
-    "HOB": "Habilidad por Juego",
-    "Ast/TO": "Asistencias/TO",
-    "Stl/TO": "Robos/TO",
-    "FT/FGA": "FT/FG Intentos",
-    "W's": "Victorias",
-    "L's": "Derrotas",
-    "Win %": "Porcentaje de Victorias",
-    "OWS": "Wins sobre Replacement",
-    "DWS": "Defensive Wins",
-    "WS": "Wins Totales"
+    "Jugador": "Jugador",
+    "PosiciÃ³n": "Posición",
+    "GP": "GP",
+    "#_y": "#_y",
+    "FGM": "FGM",
+    "FGA": "FGA",
+    "3PM": "3PM",
+    "3PA": "3PA",
+    "FTM": "FTM",
+    "FTA": "FTA",
+    "REB": "REB",
+    "Dbl Dbl": "Dbl Dbl",
+    "Tpl Dbl": "Tpl Dbl",
+    "40 Pts": "40 Pts",
+    "20 Reb": "20 Reb",
+    "20 Ast": "20 Ast",
+    "5 Stl": "5 Stl",
+    "5 Blk": "5 Blk",
+    "High Game": "High Game",
+    "Techs": "Techs",
+    "HOB": "HOB",
+    "Ast/TO": "Ast/TO",
+    "Stl/TO": "Stl/TO",
+    "FT/FGA": "FT/FGA",
+    "W's": "W's",
+    "L's": "L's",
+    "Win %": "Win %",
+    "OWS": "OWS",
+    "DWS": "DWS",
+    "WS": "WS"
 }
-
-# Renombrar las columnas
-df = df.rename(columns=columnas_espanol)
-
 # Perfiles por posición (agregar estadísticas adicionales si es necesario)
 
 perfiles_posiciones = {
@@ -186,8 +193,8 @@ estadisticas_relevantes = set(
     stat for perfiles in perfiles_posiciones.values() for perfil in perfiles.values() for stat in perfil.keys()
 )
 
-# Calcular percentiles dentro de cada posición para todas las estadísticas
-for stat in df.columns:  # Asegurarse de calcular percentiles para todas las estadísticas
+# Calcular percentiles dentro de cada posición
+for stat in estadisticas_relevantes:
     if stat in df:  # Asegúrate de que la estadística está en el DataFrame
         df[stat] = df.groupby("Posición")[stat].rank(pct=True) * 100
 
@@ -222,39 +229,52 @@ for posicion, perfiles in perfiles_posiciones.items():
 # Filtro para ver el perfil de la posición seleccionada (en barra lateral)
 st.sidebar.header("Selecciona el perfil para cada posición")
 
-# Filtros por posición
+# Filtrar por Base
 perfil_base = st.sidebar.selectbox("Perfil Base (PG)", ["Selecciona un perfil"] + list(perfiles_posiciones["Base (PG)"].keys()))
+
+# Filtrar por Escolta
 perfil_escolta = st.sidebar.selectbox("Perfil Escolta (SG)", ["Selecciona un perfil"] + list(perfiles_posiciones["Escolta (SG)"].keys()))
+
+# Filtrar por Alero
 perfil_alero = st.sidebar.selectbox("Perfil Alero (SF)", ["Selecciona un perfil"] + list(perfiles_posiciones["Alero (SF)"].keys()))
+
+# Filtrar por Ala-Pívot
 perfil_ala_pivot = st.sidebar.selectbox("Perfil Ala-Pívot (PF)", ["Selecciona un perfil"] + list(perfiles_posiciones["Ala-Pívot (PF)"].keys()))
+
+# Filtrar por Pívot
 perfil_pivot = st.sidebar.selectbox("Perfil Pívot (C)", ["Selecciona un perfil"] + list(perfiles_posiciones["Pívot (C)"].keys()))
 
-# Mostrar la tabla general de puntuaciones de los perfiles
+# Mostrar la tabla general de puntuaciones de los perfiles (sin filtros de posición ni perfil)
 st.write("Tabla General de Jugadores con sus puntuaciones por perfil:")
 perfil_columnas = [col for col in df_filtrado.columns if col not in ["Jugador", "Posición", "Minutos"]]  # Filtrar columnas de puntuaciones
 st.write(df_filtrado[["Jugador", "Posición"] + perfil_columnas])
 
 # Mostrar los 5 mejores jugadores para cada posición y perfil seleccionado
+# Para Base
 if perfil_base != "Selecciona un perfil":
     df_base = df_filtrado[df_filtrado["Posición"] == "Base (PG)"].sort_values(perfil_base, ascending=False).head(5)
     st.write(f"Los 5 mejores jugadores para el perfil '{perfil_base}' en la posición Base (PG):")
     st.write(df_base[["Jugador", "Posición", perfil_base]])
 
+# Para Escolta
 if perfil_escolta != "Selecciona un perfil":
     df_escolta = df_filtrado[df_filtrado["Posición"] == "Escolta (SG)"].sort_values(perfil_escolta, ascending=False).head(5)
     st.write(f"Los 5 mejores jugadores para el perfil '{perfil_escolta}' en la posición Escolta (SG):")
     st.write(df_escolta[["Jugador", "Posición", perfil_escolta]])
 
+# Para Alero
 if perfil_alero != "Selecciona un perfil":
     df_alero = df_filtrado[df_filtrado["Posición"] == "Alero (SF)"].sort_values(perfil_alero, ascending=False).head(5)
     st.write(f"Los 5 mejores jugadores para el perfil '{perfil_alero}' en la posición Alero (SF):")
     st.write(df_alero[["Jugador", "Posición", perfil_alero]])
 
+# Para Ala-Pívot
 if perfil_ala_pivot != "Selecciona un perfil":
     df_ala_pivot = df_filtrado[df_filtrado["Posición"] == "Ala-Pívot (PF)"].sort_values(perfil_ala_pivot, ascending=False).head(5)
     st.write(f"Los 5 mejores jugadores para el perfil '{perfil_ala_pivot}' en la posición Ala-Pívot (PF):")
     st.write(df_ala_pivot[["Jugador", "Posición", perfil_ala_pivot]])
 
+# Para Pívot
 if perfil_pivot != "Selecciona un perfil":
     df_pivot = df_filtrado[df_filtrado["Posición"] == "Pívot (C)"].sort_values(perfil_pivot, ascending=False).head(5)
     st.write(f"Los 5 mejores jugadores para el perfil '{perfil_pivot}' en la posición Pívot (C):")
