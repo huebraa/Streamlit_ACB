@@ -2,6 +2,11 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# Configuraciones de pandas para mostrar todas las columnas
+pd.set_option('display.max_columns', None)  # Mostrar todas las columnas
+pd.set_option('display.max_rows', None)     # Mostrar todas las filas
+pd.set_option('display.width', None)        # Ajustar el ancho del terminal
+
 # Función para cargar los datos
 @st.cache
 def cargar_datos():
@@ -43,6 +48,12 @@ columnas_espanol = {
 
 # Renombrar las columnas
 df = df.rename(columns=columnas_espanol)
+
+# Comprobar si faltan columnas tras el renombrado
+columnas_faltantes = set(columnas_espanol.keys()) - set(df.columns)
+if columnas_faltantes:
+    st.warning(f"Columnas que no se encontraron en el DataFrame: {columnas_faltantes}")
+
 
 # Perfiles por posición
 perfiles_posiciones = {
@@ -203,6 +214,13 @@ for posicion, perfiles in perfiles_posiciones.items():
     for perfil_nombre, perfil in perfiles.items():
         df_filtrado[perfil_nombre] = df_filtrado.apply(lambda row: calcular_puntuacion(row, perfil), axis=1)
 
+# Mostrar todas las columnas del DataFrame
+st.write("Columnas disponibles en el DataFrame:")
+st.write(df.columns.tolist())  # Lista de columnas
+
+# Mostrar la tabla general con todas las columnas
+st.write("Tabla General de Jugadores con sus puntuaciones por perfil:")
+st.dataframe(df_filtrado)  # Permite scroll horizontal
 # Filtro para ver el perfil de la posición seleccionada (en barra lateral)
 st.sidebar.header("Selecciona el perfil para cada posición")
 
