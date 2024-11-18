@@ -207,7 +207,6 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
 
     # Tamaño de fuente ajustado a 44
     font_size = 44
-    azul_color = '#1f77b4'  # Tono azul
 
     # Recorrer cada posición y mostrar los jugadores
     for posicion, (x, y) in posiciones.items():
@@ -225,12 +224,11 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
             
             # Mostrar los jugadores en formato de lista minimalista
             lista_jugadores = "\n".join(
-                [f"{jugador['Jugador']} - {jugador['Perfil Principal']} - #{jugador['Ranking Liga']}" 
-                 for idx, jugador in jugadores_posicion.iterrows()]
+                [f"{jugador['Jugador']} - {jugador['Perfil Principal']}" for idx, jugador in jugadores_posicion.iterrows()]
             )
 
             # Colocar la lista en la coordenada correspondiente
-            ax.text(x, y, lista_jugadores, ha="center", va="center", fontsize=font_size, color=azul_color, weight='bold')
+            ax.text(x, y, lista_jugadores, ha="center", va="center", fontsize=font_size, color="black", weight='bold')
 
             # Ajustar la coordenada 'y' para la siguiente posición si hay más de un jugador
             y -= 2  # Ajustar para el siguiente jugador si hay más
@@ -240,8 +238,6 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
 
     # Mostrar
     st.pyplot(fig)
-
-
 
 
 
