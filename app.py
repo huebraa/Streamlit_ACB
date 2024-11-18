@@ -206,7 +206,7 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
     }
 
     # Tamaño de fuente ajustado para una buena legibilidad
-    font_size = 12
+    font_size = 44
 
     # Recorrer cada posición y mostrar los jugadores
     for posicion, (x, y) in posiciones.items():
