@@ -205,17 +205,36 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
         "Pívot (C)": (5, 1.5)
     }
 
-   
-            # Dibujar en la posición correspondiente
-            ax.text(x, y, jugador_info, ha="center", va="center", fontsize=10, 
-                    bbox=dict(boxstyle="round", facecolor="white", edgecolor="black", alpha=0.9))
-            ax.plot(x, y + 0.3, 'o', color="blue", markersize=14)  # Marcador para la posición
+    # Recorrer cada posición y mostrar los mejores jugadores
+    for posicion, (x, y) in posiciones.items():
+        # Obtener los jugadores de esta posición
+        jugadores_posicion = jugadores_equipo[jugadores_equipo["Posición"] == posicion]
+        if not jugadores_posicion.empty:
+            # Obtener el perfil con mayor puntuación para cada jugador
+            jugadores_posicion["Perfil Principal"] = jugadores_posicion.apply(
+                lambda row: obtener_perfil_maximo(row, perfiles_posiciones[row["Posición"]].keys()),
+                axis=1
+            )
+            # Mostrar todos los jugadores de esta posición
+            for idx, jugador in jugadores_posicion.iterrows():
+                jugador_info = (
+                    f"{jugador['Jugador']}\n"
+                    f"Perfil: {jugador['Perfil Principal']}"
+                )
+                # Dibujar en la posición correspondiente
+                ax.text(x, y, jugador_info, ha="center", va="center", fontsize=10, 
+                        bbox=dict(boxstyle="round", facecolor="white", edgecolor="black", alpha=0.9))
+                ax.plot(x, y + 0.3, 'o', color="blue", markersize=14)  # Marcador para la posición
+
+                # Ajustar la coordenada 'y' para el siguiente jugador de la misma posición (en caso de que haya más de 1)
+                y -= 1.0  # Espacio entre jugadores
 
     # Título
     ax.set_title(f"Jugadores del equipo {equipo_seleccionado} por posición y perfil", fontsize=16, color="black")
     
     # Mostrar
     st.pyplot(fig)
+
 
 
 
