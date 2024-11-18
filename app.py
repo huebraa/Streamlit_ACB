@@ -47,23 +47,25 @@ perfiles_posiciones = {
         "Pass-First PG": {
             "AST%": 0.30,
             "PPR": 0.30,
-            "STL%": 0.15,
-            "eFG%": 0.10,
-            "ORtg": 0.10
+            "STL%": 0.10,
+            "eFG%": 0.05,
+            "ORtg": 0.05,
+            "Ast/TO": 0.15  # Agregada
         },
         "Scorer PG": {
-            "PTS": 0.40,
-            "3P%": 0.25,
+            "PTS": 0.3,
+            "3P%": 0.2,
             "AST%": 0.10,
             "STL%": 0.10,
-            "TOV%": 0.15
+            "TOV%": 0.15,
+            "HOB": 0.20  # Agregada
         },
         "Two-Way PG": {
             "STL%": 0.30,
             "AST%": 0.20,
             "DRtg": 0.25,
-            "TRB%": 0.15,
-            "PER": 0.10
+            "TRB%": 0.15,,
+            "Stl/TO": 0.15  # Agregada
         }
     },
     "Escolta (SG)": {
