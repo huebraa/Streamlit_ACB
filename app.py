@@ -42,127 +42,125 @@ columnas_espanol = {
 # Renombrar las columnas
 df = df.rename(columns=columnas_espanol)
 
-# Perfiles por posición
 perfiles_posiciones = {
-    "Base (PG)": {
-        "Pass-First PG": {
-            "AST%": 0.30,
-            "PPR": 0.30,
-            "STL%": 0.10,
-            "eFG%": 0.05,
-            "ORtg": 0.05,
-            "Ast/TO": 0.15  # Agregada
-        },
-        "Scorer PG": {
-            "PTS": 0.3,
-            "3P%": 0.2,
-            "AST%": 0.10,
-            "STL%": 0.10,
-            "TOV%": 0.15,
-            "HOB": 0.20  # Agregada
-        },
-        "Two-Way PG": {
-            "STL%": 0.30,
-            "AST%": 0.20,
-            "DRtg": 0.25,
-            "TRB%": 0.15,
-            "Stl/TO": 0.15  # Agregada
-        }
-    },
-    "Escolta (SG)": {
-        "Pass-First SG": {
-            "AST%": 0.35,
-            "PPR": 0.25,
-            "STL%": 0.15,
-            "eFG%": 0.10,
-            "ORtg": 0.15
-        },
-        "Scorer SG": {
-            "PTS": 0.40,
-            "3P%": 0.30,
-            "eFG%": 0.15,
-            "STL%": 0.10,
-            "TOV%": 0.05
-        },
-        "Two-Way SG": {
-            "STL%": 0.35,
-            "DRtg": 0.25,
-            "AST%": 0.15,
-            "3P%": 0.10,
-            "TOV%": 0.15
-        }
-    },
-    "Alero (SF)": {
-        "Playmaking SF": {
-            "AST%": 0.30,
-            "PPR": 0.30,
-            "STL%": 0.15,
-            "eFG%": 0.15,
-            "ORtg": 0.10
-        },
-        "Scoring SF": {
-            "PTS": 0.40,
-            "3P%": 0.30,
-            "eFG%": 0.15,
-            "STL%": 0.10,
-            "TOV%": 0.05
-        },
-        "Two-Way SF": {
-            "STL%": 0.35,
-            "DRtg": 0.30,
-            "TRB%": 0.15,
-            "eFG%": 0.10,
-            "TOV%": 0.10
-        }
-    },
-    "Ala-Pívot (PF)": {
-        "Stretch PF": {
-            "3P%": 0.35,
-            "eFG%": 0.30,
-            "PTS": 0.20,
-            "TRB%": 0.10,
-            "TOV%": 0.05
-        },
-        "Post-Play PF": {
-            "TRB%": 0.30,
-            "PTS": 0.25,
-            "BLK%": 0.20,
-            "ORtg": 0.15,
-            "STL%": 0.10
-        },
-        "Two-Way PF": {
-            "STL%": 0.25,
-            "TRB%": 0.25,
-            "DRtg": 0.20,
-            "eFG%": 0.15,
-            "TOV%": 0.15
-        }
-    },
-    "Pívot (C)": {
-        "Defensive C": {
-            "BLK%": 0.40,
-            "DRtg": 0.30,
-            "TRB%": 0.15,
-            "TOV%": 0.10,
-            "STL%": 0.05
-        },
-        "Scoring C": {
-            "PTS": 0.35,
-            "TRB%": 0.25,
-            "FG%": 0.20,
-            "3P%": 0.10,
-            "FT%": 0.10
-        },
-        "Two-Way C": {
-            "STL%": 0.25,
-            "BLK%": 0.30,
-            "TRB%": 0.25,
-            "PTS": 0.10,
-            "eFG%": 0.10
-        }
-    }
+"Base (PG)": {
+"Pass-First PG": {
+"AST%": 0.30,
+"PPR": 0.30,
+"STL%": 0.10,
+"eFG%": 0.05,
+"ORtg": 0.05,
+"Ast/TO": 0.15  # Agregada
+},
+"Scorer PG": {
+"PTS": 0.3,
+"3P%": 0.2,
+"AST%": 0.10,
+"STL%": 0.10,
+"TOV%": 0.15,
+"HOB": 0.20  # Agregada
+},
+"Two-Way PG": {
+"STL%": 0.30,
+"AST%": 0.20,
+"DRtg": 0.25,
+"TRB%": 0.15,
+"Stl/TO": 0.15  # Agregada
 }
-
+},
+"Escolta (SG)": {
+"Pass-First SG": {
+"AST%": 0.35,
+"PPR": 0.25,
+"STL%": 0.15,
+"eFG%": 0.10,
+"ORtg": 0.15
+},
+"Scorer SG": {
+"PTS": 0.40,
+"3P%": 0.30,
+"eFG%": 0.15,
+"STL%": 0.10,
+"TOV%": 0.05
+},
+"Two-Way SG": {
+"STL%": 0.35,
+"DRtg": 0.25,
+"AST%": 0.15,
+"3P%": 0.10,
+"TOV%": 0.15
+}
+},
+"Alero (SF)": {
+"Playmaking SF": {
+"AST%": 0.30,
+"PPR": 0.30,
+"STL%": 0.15,
+"eFG%": 0.15,
+"ORtg": 0.10
+},
+"Scoring SF": {
+"PTS": 0.40,
+"3P%": 0.30,
+"eFG%": 0.15,
+"STL%": 0.10,
+"TOV%": 0.05
+},
+"Two-Way SF": {
+"STL%": 0.35,
+"DRtg": 0.30,
+"TRB%": 0.15,
+"eFG%": 0.10,
+"TOV%": 0.10
+}
+},
+"Ala-Pívot (PF)": {
+"Stretch PF": {
+"3P%": 0.35,
+"eFG%": 0.30,
+"PTS": 0.20,
+"TRB%": 0.10,
+"TOV%": 0.05
+},
+"Post-Play PF": {
+"TRB%": 0.30,
+"PTS": 0.25,
+"BLK%": 0.20,
+"ORtg": 0.15,
+"STL%": 0.10
+},
+"Two-Way PF": {
+"STL%": 0.25,
+"TRB%": 0.25,
+"DRtg": 0.20,
+"eFG%": 0.15,
+"TOV%": 0.15
+}
+},
+"Pívot (C)": {
+"Defensive C": {
+"BLK%": 0.40,
+"DRtg": 0.30,
+"TRB%": 0.15,
+"TOV%": 0.10,
+"STL%": 0.05
+},
+"Scoring C": {
+"PTS": 0.35,
+"TRB%": 0.25,
+"FG%": 0.20,
+"3P%": 0.10,
+"FT%": 0.10
+},
+"Two-Way C": {
+"STL%": 0.25,
+"BLK%": 0.30,
+"TRB%": 0.25,
+"PTS": 0.10,
+"eFG%": 0.10
+}
+}
+}
 
 # Normalización de estadísticas a percentiles por posición
 estadisticas_relevantes = set(
@@ -226,8 +224,50 @@ if equipo_seleccionado != "Todos":
 if posicion_seleccionada != "Todos":
     df_filtrado_equipo_posicion = df_filtrado_equipo_posicion[df_filtrado_equipo_posicion["Posición"] == posicion_seleccionada]
 
-# Mostrar resultados
-if st.button("Mostrar jugadores filtrados en una nueva ventana"):
+# Mostrar resultados de jugadores filtrados en una nueva ventana
+if st.button("Mostrar jugadores filtrados por equipo y posición"):
     with st.expander("Resultados Filtrados", expanded=True):
         st.write(f"Jugadores del equipo **{equipo_seleccionado}** en la posición **{posicion_seleccionada}**:")
         st.dataframe(df_filtrado_equipo_posicion[["Jugador", "Equipo", "Posición", "Perfil Principal"]])
+
+# Mantener funcionalidades previas
+# Mostrar tabla general
+st.write("Tabla General de Jugadores con sus puntuaciones por perfil:")
+perfil_columnas = [col for col in df_filtrado.columns if col not in ["Jugador", "Posición", "Minutos", "Equipo", "Perfil Principal"]]
+st.write(df_filtrado[["Jugador", "Posición", "Equipo", "Perfil Principal"] + perfil_columnas])
+
+# Mostrar los 5 mejores jugadores para cada posición y perfil seleccionado
+# Para Base
+perfil_base = st.sidebar.selectbox("Perfil Base (PG)", ["Selecciona un perfil"] + list(perfiles_posiciones["Base (PG)"].keys()))
+if perfil_base != "Selecciona un perfil":
+    df_base = df_filtrado[df_filtrado["Posición"] == "Base (PG)"].sort_values(perfil_base, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_base}' en la posición Base (PG):")
+    st.write(df_base[["Jugador", "Posición", perfil_base]])
+
+# Para Escolta
+perfil_escolta = st.sidebar.selectbox("Perfil Escolta (SG)", ["Selecciona un perfil"] + list(perfiles_posiciones["Escolta (SG)"].keys()))
+if perfil_escolta != "Selecciona un perfil":
+    df_escolta = df_filtrado[df_filtrado["Posición"] == "Escolta (SG)"].sort_values(perfil_escolta, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_escolta}' en la posición Escolta (SG):")
+    st.write(df_escolta[["Jugador", "Posición", perfil_escolta]])
+
+# Para Alero
+perfil_alero = st.sidebar.selectbox("Perfil Alero (SF)", ["Selecciona un perfil"] + list(perfiles_posiciones["Alero (SF)"].keys()))
+if perfil_alero != "Selecciona un perfil":
+    df_alero = df_filtrado[df_filtrado["Posición"] == "Alero (SF)"].sort_values(perfil_alero, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_alero}' en la posición Alero (SF):")
+    st.write(df_alero[["Jugador", "Posición", perfil_alero]])
+
+# Para Ala-Pívot
+perfil_ala_pivot = st.sidebar.selectbox("Perfil Ala-Pívot (PF)", ["Selecciona un perfil"] + list(perfiles_posiciones["Ala-Pívot (PF)"].keys()))
+if perfil_ala_pivot != "Selecciona un perfil":
+    df_ala_pivot = df_filtrado[df_filtrado["Posición"] == "Ala-Pívot (PF)"].sort_values(perfil_ala_pivot, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_ala_pivot}' en la posición Ala-Pívot (PF):")
+    st.write(df_ala_pivot[["Jugador", "Posición", perfil_ala_pivot]])
+
+# Para Pívot
+perfil_pivot = st.sidebar.selectbox("Perfil Pívot (C)", ["Selecciona un perfil"] + list(perfiles_posiciones["Pívot (C)"].keys()))
+if perfil_pivot != "Selecciona un perfil":
+    df_pivot = df_filtrado[df_filtrado["Posición"] == "Pívot (C)"].sort_values(perfil_pivot, ascending=False).head(5)
+    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_pivot}' en la posición Pívot (C):")
+    st.write(df_pivot[["Jugador", "Posición", perfil_pivot]])
