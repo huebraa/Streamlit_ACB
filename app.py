@@ -190,22 +190,22 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
     # Filtrar jugadores del equipo seleccionado
     jugadores_equipo = df_filtrado[df_filtrado["Equipo"] == equipo_seleccionado]
     
-    # Crear figura
+    # Crear figura y configurarla
     fig, ax = plt.subplots(figsize=(10, 7))
-    fig.patch.set_facecolor('lightgrey')
-    ax.set_facecolor('lightgrey')
-    ax.axis('off')
+    fig.patch.set_facecolor('white')  # Fondo blanco
+    ax.set_facecolor('white')  # Fondo blanco
+    ax.axis('off')  # Quitar ejes
 
-    # Posiciones y coordenadas ficticias para la disposición
+    # Coordenadas para cada posición en una lista simple
     posiciones = {
-        "Base (PG)": (2.5, 5.5),
-        "Escolta (SG)": (7.5, 5.5),
-        "Alero (SF)": (2.5, 3.5),
-        "Ala-Pívot (PF)": (7.5, 3.5),
-        "Pívot (C)": (5, 1.5)
+        "Base (PG)": (2.5, 6),
+        "Escolta (SG)": (7.5, 6),
+        "Alero (SF)": (2.5, 4.5),
+        "Ala-Pívot (PF)": (7.5, 4.5),
+        "Pívot (C)": (5, 2)
     }
 
-    # Recorrer cada posición y mostrar los mejores jugadores
+    # Recorrer cada posición y mostrar los jugadores
     for posicion, (x, y) in posiciones.items():
         # Obtener los jugadores de esta posición
         jugadores_posicion = jugadores_equipo[jugadores_equipo["Posición"] == posicion]
@@ -215,22 +215,20 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
                 lambda row: obtener_perfil_maximo(row, perfiles_posiciones[row["Posición"]].keys()),
                 axis=1
             )
-            # Mostrar todos los jugadores de esta posición
-            for idx, jugador in jugadores_posicion.iterrows():
-                jugador_info = (
-                    f"{jugador['Jugador']}\n"
-                    f"Perfil: {jugador['Perfil Principal']}"
-                )
-                # Dibujar en la posición correspondiente
-                ax.text(x, y, jugador_info, ha="center", va="center", fontsize=10, 
-                        bbox=dict(boxstyle="round", facecolor="white", edgecolor="black", alpha=0.9))
-                ax.plot(x, y + 0.3, 'o', color="blue", markersize=14)  # Marcador para la posición
+            
+            # Mostrar los jugadores en formato de lista minimalista
+            lista_jugadores = "\n".join(
+                [f"{jugador['Jugador']} - {jugador['Perfil Principal']}" for idx, jugador in jugadores_posicion.iterrows()]
+            )
 
-                # Ajustar la coordenada 'y' para el siguiente jugador de la misma posición (en caso de que haya más de 1)
-                y -= 1.0  # Espacio entre jugadores
+            # Colocar la lista en la coordenada correspondiente
+            ax.text(x, y, lista_jugadores, ha="center", va="center", fontsize=12, color="black")
+
+            # Ajustar la coordenada 'y' para la siguiente posición
+            y -= 1.5  # Ajustar para el siguiente jugador si hay más
 
     # Título
-    ax.set_title(f"Jugadores del equipo {equipo_seleccionado} por posición y perfil", fontsize=16, color="black")
+    ax.set_title(f"Jugadores del equipo {equipo_seleccionado} por posición", fontsize=16, color="black")
     
     # Mostrar
     st.pyplot(fig)
