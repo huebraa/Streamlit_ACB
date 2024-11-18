@@ -210,7 +210,7 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
         # Obtener el mejor jugador de esta posición
         jugadores_posicion = jugadores_equipo[jugadores_equipo["Posición"] == posicion]
         if not jugadores_posicion.empty:
-            mejor_jugador = jugadores_posicion.loc[jugadores_posicion.iloc[:, 2:].idxmax().max()]  # Max perfil
+            mejor_jugador = jugadores_posicion.loc[jugadores_posicion.iloc[:, 2:].idxmax()]  # Solo idxmax
             jugador_info = (
                 f"{mejor_jugador['Jugador']}\n"
                 f"Perfil: {mejor_jugador.iloc[2:].idxmax()}\n"
