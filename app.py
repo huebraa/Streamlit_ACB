@@ -1,19 +1,22 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+
+
+
 # Configuración inicial de pandas para mostrar todas las columnas
 pd.set_option('display.max_columns', None)
-pd.set_option('display.max_rows', None)
 pd.set_option('display.width', None)
 
-# Cargar datos
+# Función para cargar datos
 @st.cache
 def cargar_datos():
     return pd.read_csv("estadisticas_completas.csv")
 
+# Cargar los datos
 df = cargar_datos()
 
-# Mostrar columnas originales
+# Mostrar todas las columnas disponibles
 st.write("Columnas disponibles en el archivo CSV:")
 st.write(df.columns.tolist())
 
@@ -163,20 +166,26 @@ def calcular_puntuacion(row, perfil):
                 st.warning(f"Advertencia: No se pudo convertir el valor de {stat} para el jugador {row['Jugador']}. Valor: {row[stat]}")
     return puntuacion
 
+
 # Filtrado por mínimo de minutos
-minutos_minimos = st.sidebar.slider(
-    "Selecciona el mínimo de minutos jugados",
-    min_value=int(df["MIN"].min()),
-    max_value=int(df["MIN"].max()),
-    value=int(df["MIN"].min()),
-    step=1
-)
+if "MIN" in df.columns:
+    minutos_minimos = st.sidebar.slider(
+        "Selecciona el mínimo de minutos jugados",
+        min_value=int(df["MIN"].min()),
+        max_value=int(df["MIN"].max()),
+        value=int(df["MIN"].min()),
+        step=1
+    )
+    df_filtrado = df[df["MIN"] >= minutos_minimos]
+else:
+    st.warning("La columna 'MIN' no está disponible en los datos.")
+    df_filtrado = df
 
-df_filtrado = df[df["MIN"] >= minutos_minimos]
-
-# Mostrar la tabla general de datos filtrados
-st.write("Tabla General de Jugadores (sin renombrar columnas):")
+# Mostrar la tabla general de datos
+st.write("Tabla General de Jugadores (todas las columnas):")
 st.dataframe(df_filtrado)
+
+
 
 # Agregar las puntuaciones para los perfiles de todas las posiciones
 for posicion, perfiles in perfiles_posiciones.items():
