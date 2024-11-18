@@ -196,14 +196,17 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
     ax.set_facecolor('white')  # Fondo blanco
     ax.axis('off')  # Quitar ejes
 
-    # Coordenadas para cada posición en una lista simple
+    # Coordenadas ajustadas para cada posición en una lista simple
     posiciones = {
-        "Base (PG)": (2.5, 6),
-        "Escolta (SG)": (7.5, 6),
-        "Alero (SF)": (2.5, 4.5),
-        "Ala-Pívot (PF)": (7.5, 4.5),
-        "Pívot (C)": (5, 2)
+        "Base (PG)": (5, 1),           # Centro abajo
+        "Escolta (SG)": (1.5, 4.5),     # Arriba izquierda
+        "Alero (SF)": (8, 4.5),         # Arriba derecha
+        "Ala-Pívot (PF)": (1.5, 6),     # Arriba izquierda más alto
+        "Pívot (C)": (8, 6)             # Arriba derecha más alto
     }
+
+    # Tamaño de fuente ajustado para una buena legibilidad
+    font_size = 12
 
     # Recorrer cada posición y mostrar los jugadores
     for posicion, (x, y) in posiciones.items():
@@ -222,7 +225,7 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
             )
 
             # Colocar la lista en la coordenada correspondiente
-            ax.text(x, y, lista_jugadores, ha="center", va="center", fontsize=12, color="black")
+            ax.text(x, y, lista_jugadores, ha="center", va="center", fontsize=font_size, color="black", weight='bold')
 
             # Ajustar la coordenada 'y' para la siguiente posición
             y -= 1.5  # Ajustar para el siguiente jugador si hay más
@@ -232,6 +235,7 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
     
     # Mostrar
     st.pyplot(fig)
+
 
 
 
