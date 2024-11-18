@@ -41,9 +41,125 @@ columnas_espanol = {
 # Renombrar las columnas
 df = df.rename(columns=columnas_espanol)
 
-# Perfiles por posición (igual que antes, no mostrado aquí por longitud)
+# Perfiles por posición
 perfiles_posiciones = {
-    # Perfiles de cada posición...
+    "Base (PG)": {
+        "Pass-First PG": {
+            "AST%": 0.30,
+            "PPR": 0.30,
+            "STL%": 0.10,
+            "eFG%": 0.05,
+            "ORtg": 0.05,
+            "Ast/TO": 0.15  # Agregada
+        },
+        "Scorer PG": {
+            "PTS": 0.3,
+            "3P%": 0.2,
+            "AST%": 0.10,
+            "STL%": 0.10,
+            "TOV%": 0.15,
+            "HOB": 0.20  # Agregada
+        },
+        "Two-Way PG": {
+            "STL%": 0.30,
+            "AST%": 0.20,
+            "DRtg": 0.25,
+            "TRB%": 0.15,
+            "Stl/TO": 0.15  # Agregada
+        }
+    },
+    "Escolta (SG)": {
+        "Pass-First SG": {
+            "AST%": 0.35,
+            "PPR": 0.25,
+            "STL%": 0.15,
+            "eFG%": 0.10,
+            "ORtg": 0.15
+        },
+        "Scorer SG": {
+            "PTS": 0.40,
+            "3P%": 0.30,
+            "eFG%": 0.15,
+            "STL%": 0.10,
+            "TOV%": 0.05
+        },
+        "Two-Way SG": {
+            "STL%": 0.35,
+            "DRtg": 0.25,
+            "AST%": 0.15,
+            "3P%": 0.10,
+            "TOV%": 0.15
+        }
+    },
+    "Alero (SF)": {
+        "Playmaking SF": {
+            "AST%": 0.30,
+            "PPR": 0.30,
+            "STL%": 0.15,
+            "eFG%": 0.15,
+            "ORtg": 0.10
+        },
+        "Scoring SF": {
+            "PTS": 0.40,
+            "3P%": 0.30,
+            "eFG%": 0.15,
+            "STL%": 0.10,
+            "TOV%": 0.05
+        },
+        "Two-Way SF": {
+            "STL%": 0.35,
+            "DRtg": 0.30,
+            "TRB%": 0.15,
+            "eFG%": 0.10,
+            "TOV%": 0.10
+        }
+    },
+    "Ala-Pívot (PF)": {
+        "Stretch PF": {
+            "3P%": 0.35,
+            "eFG%": 0.30,
+            "PTS": 0.20,
+            "TRB%": 0.10,
+            "TOV%": 0.05
+        },
+        "Post-Play PF": {
+            "TRB%": 0.30,
+            "PTS": 0.25,
+            "BLK%": 0.20,
+            "ORtg": 0.15,
+            "STL%": 0.10
+        },
+        "Two-Way PF": {
+            "STL%": 0.25,
+            "TRB%": 0.25,
+            "DRtg": 0.20,
+            "eFG%": 0.15,
+            "TOV%": 0.15
+        }
+    },
+    "Pívot (C)": {
+        "Defensive C": {
+            "BLK%": 0.40,
+            "DRtg": 0.30,
+            "TRB%": 0.15,
+            "TOV%": 0.10,
+            "STL%": 0.05
+        },
+        "Scoring C": {
+            "PTS": 0.35,
+            "TRB%": 0.25,
+            "FG%": 0.20,
+            "3P%": 0.10,
+            "FT%": 0.10
+        },
+        "Two-Way C": {
+            "STL%": 0.25,
+            "BLK%": 0.30,
+            "TRB%": 0.25,
+            "PTS": 0.10,
+            "eFG%": 0.10
+        }
+    }
 }
 
 # Normalización de estadísticas a percentiles por posición
