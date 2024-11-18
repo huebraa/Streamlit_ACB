@@ -61,6 +61,7 @@ columnas_espanol = {
 df = df.rename(columns=columnas_espanol)
 
 # Perfiles por posición (agregar estadísticas adicionales si es necesario)
+
 perfiles_posiciones = {
     "Base (PG)": {
         "Pass-First PG": {
@@ -69,8 +70,7 @@ perfiles_posiciones = {
             "STL%": 0.10,
             "eFG%": 0.05,
             "ORtg": 0.05,
-            "Ast/TO": 0.15,  # Agregada
-            "Dbl Dbl": 0.10  # Agregada si es relevante
+            "Ast/TO": 0.15  # Agregada
         },
         "Scorer PG": {
             "PTS": 0.3,
@@ -78,18 +78,17 @@ perfiles_posiciones = {
             "AST%": 0.10,
             "STL%": 0.10,
             "TOV%": 0.15,
-            "HOB": 0.20  # Agregada si es relevante
+            "HOB": 0.20  # Agregada
         },
         "Two-Way PG": {
             "STL%": 0.30,
             "AST%": 0.20,
             "DRtg": 0.25,
             "TRB%": 0.15,
-            "Stl/TO": 0.15  # Agregada si es relevante
-        },
-
-            "Escolta (SG)": {
-                
+            "Stl/TO": 0.15  # Agregada
+        }
+    },
+    "Escolta (SG)": {
         "Pass-First SG": {
             "AST%": 0.35,
             "PPR": 0.25,
@@ -181,7 +180,6 @@ perfiles_posiciones = {
             "eFG%": 0.10
         }
     }
-}
 }
 # Normalización de estadísticas a percentiles por posición
 estadisticas_relevantes = set(
