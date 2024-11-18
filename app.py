@@ -205,17 +205,7 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
         "Pívot (C)": (5, 1.5)
     }
 
-    # Recorrer cada posición y mostrar los mejores jugadores
-    for posicion, (x, y) in posiciones.items():
-        # Obtener el mejor jugador de esta posición
-        jugadores_posicion = jugadores_equipo[jugadores_equipo["Posición"] == posicion]
-        if not jugadores_posicion.empty:
-            mejor_jugador = jugadores_posicion.loc[jugadores_posicion.iloc[:, 2:].idxmax()]  # Solo idxmax
-            jugador_info = (
-                f"{mejor_jugador['Jugador']}\n"
-                f"Perfil: {mejor_jugador.iloc[2:].idxmax()}\n"
-                f"Ranking: {jugadores_posicion.index.get_loc(mejor_jugador.name) + 1}"
-            )
+   
             # Dibujar en la posición correspondiente
             ax.text(x, y, jugador_info, ha="center", va="center", fontsize=10, 
                     bbox=dict(boxstyle="round", facecolor="white", edgecolor="black", alpha=0.9))
