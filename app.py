@@ -1,5 +1,5 @@
 import streamlit as st
-import matplotlit b.pyplot as plt
+import matplotlitb.pyplot as plt
 import pandas as pd
 
 # Función para cargar los datos
