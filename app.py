@@ -86,7 +86,7 @@ perfiles_posiciones = {
             "DRtg": 0.25,
             "TRB%": 0.15,
             "Stl/TO": 0.15  # Agregada si es relevante
-        }
+        },
 
             "Escolta (SG)": {
         "Pass-First SG": {
