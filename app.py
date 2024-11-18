@@ -1,4 +1,5 @@
 import streamlit as st
+import matplotlib.pyplot as plt
 import pandas as pd
 
 # Función para cargar los datos
@@ -184,6 +185,50 @@ def calcular_puntuacion(row, perfil):
                 st.warning(f"Advertencia: No se pudo convertir el valor de {stat} para el jugador {row.get('Jugador', 'Desconocido')}. Valor: {row[stat]}")
     return puntuacion
 
+
+def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
+    # Filtrar jugadores del equipo seleccionado
+    jugadores_equipo = df_filtrado[df_filtrado["Equipo"] == equipo_seleccionado]
+    
+    # Crear figura
+    fig, ax = plt.subplots(figsize=(10, 7))
+    fig.patch.set_facecolor('lightgrey')
+    ax.set_facecolor('lightgrey')
+    ax.axis('off')
+
+    # Posiciones y coordenadas ficticias para la disposición
+    posiciones = {
+        "Base (PG)": (2.5, 5.5),
+        "Escolta (SG)": (7.5, 5.5),
+        "Alero (SF)": (2.5, 3.5),
+        "Ala-Pívot (PF)": (7.5, 3.5),
+        "Pívot (C)": (5, 1.5)
+    }
+
+    # Recorrer cada posición y mostrar los mejores jugadores
+    for posicion, (x, y) in posiciones.items():
+        # Obtener el mejor jugador de esta posición
+        jugadores_posicion = jugadores_equipo[jugadores_equipo["Posición"] == posicion]
+        if not jugadores_posicion.empty:
+            mejor_jugador = jugadores_posicion.loc[jugadores_posicion.iloc[:, 2:].idxmax().max()]  # Max perfil
+            jugador_info = (
+                f"{mejor_jugador['Jugador']}\n"
+                f"Perfil: {mejor_jugador.iloc[2:].idxmax()}\n"
+                f"Ranking: {jugadores_posicion.index.get_loc(mejor_jugador.name) + 1}"
+            )
+            # Dibujar en la posición correspondiente
+            ax.text(x, y, jugador_info, ha="center", va="center", fontsize=10, 
+                    bbox=dict(boxstyle="round", facecolor="white", edgecolor="black", alpha=0.9))
+            ax.plot(x, y + 0.3, 'o', color="blue", markersize=14)  # Marcador para la posición
+
+    # Título
+    ax.set_title(f"Jugadores del equipo {equipo_seleccionado} por posición y perfil", fontsize=16, color="black")
+    
+    # Mostrar
+    st.pyplot(fig)
+
+
+
 # Filtrado por mínimo de minutos
 minutos_minimos = st.sidebar.slider(
     "Selecciona el mínimo de minutos jugados",
@@ -214,7 +259,12 @@ df_filtrado["Perfil Principal"] = df_filtrado.apply(
 
 # Filtro adicional por equipo y posición
 st.sidebar.header("Filtrar jugadores por equipo y posición")
-equipo_seleccionado = st.sidebar.selectbox("Selecciona un equipo", ["Todos"] + sorted(df_filtrado["Equipo"].unique()))
+# Filtro de equipo
+equipo_seleccionado = st.sidebar.selectbox("Selecciona un equipo", ["Todos"] + df["Equipo"].unique().tolist())
+
+if equipo_seleccionado != "Todos":
+    mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado)
+
 posicion_seleccionada = st.sidebar.selectbox("Selecciona una posición", ["Todos"] + sorted(df_filtrado["Posición"].unique()))
 
 # Aplicar filtros
