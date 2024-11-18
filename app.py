@@ -35,7 +35,10 @@ columnas_espanol = {
     "FG%": "FG%",
     "3P%": "3P%",
     "FT%": "FT%",
-    "PF": "PF"
+    "PF": "PF",
+    "Ast/TO": "Ast/TO",
+    "HOB" : "HOB",
+    "Stl/TO" : "Stl/TO"
 }
 
 # Renombrar las columnas
