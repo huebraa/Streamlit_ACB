@@ -89,6 +89,8 @@ perfiles_posiciones = {
         },
 
             "Escolta (SG)": {
+                
+        "Pass-First SG": {
             "AST%": 0.35,
             "PPR": 0.25,
             "STL%": 0.15,
