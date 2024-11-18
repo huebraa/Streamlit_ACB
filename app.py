@@ -2,14 +2,43 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Función para cargar los datos
+
+# Cargar el archivo CSV
 @st.cache
 def cargar_datos():
-    # Leer los datos del archivo CSV
-    return pd.read_csv("estadisticas_completas.csv")
+    df = pd.read_csv("estadisticas_completas.csv")
+    
+    # Limpiar los nombres de las columnas eliminando espacios innecesarios
+    df.columns = df.columns.str.strip()
+
+    # Imprimir las primeras filas y los nombres de las columnas para verificar
+    st.write("Primeras filas del DataFrame:")
+    st.write(df.head())
+    
+    # Verificar nombres de columnas
+    st.write("Nombres de las columnas:")
+    st.write(df.columns)
+
+    return df
 
 # Cargar los datos
 df = cargar_datos()
+
+# Verificar si 'Minutos' existe
+if "Minutos" not in df.columns:
+    st.error("La columna 'Minutos' no existe en el DataFrame. Verifica el archivo CSV.")
+else:
+    # Procede con el resto del código si la columna existe
+    minutos_minimos = st.sidebar.slider(
+        "Selecciona el mínimo de minutos jugados",
+        min_value=int(df["Minutos"].min()),
+        max_value=int(df["Minutos"].max()),
+        value=int(df["Minutos"].min()),
+        step=1
+    )
+
+    # Resto del código...
+
 
 # Mapeo de nombres de las columnas para que se vean en español
 columnas_espanol = {
