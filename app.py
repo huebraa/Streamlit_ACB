@@ -181,7 +181,7 @@ perfiles_posiciones = {
         }
     }
 }
-
+}
 # Normalización de estadísticas a percentiles por posición
 estadisticas_relevantes = set(
     stat for perfiles in perfiles_posiciones.values() for perfil in perfiles.values() for stat in perfil.keys()
