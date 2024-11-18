@@ -226,8 +226,8 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
     Creado por: [Tu Nombre o Nombre de la Marca]
     """
 
-# Añadir texto a la parte superior de la imagen
-ax.text(0.5, 1.05, comentario, ha="center", va="center", fontsize=14, color="black", weight='bold', wrap=True)
+    # Añadir texto a la parte superior de la imagen
+    ax.text(0.5, 1.05, comentario, ha="center", va="center", fontsize=14, color="black", weight='bold', wrap=True)
     
     # Coordenadas ajustadas para cada posición en una lista simple
     posiciones = {
