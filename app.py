@@ -64,7 +64,7 @@ perfiles_posiciones = {
             "STL%": 0.30,
             "AST%": 0.20,
             "DRtg": 0.25,
-            "TRB%": 0.15,,
+            "TRB%": 0.15,
             "Stl/TO": 0.15  # Agregada
         }
     },
