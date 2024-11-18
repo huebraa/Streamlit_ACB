@@ -2,46 +2,18 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
-# Cargar el archivo CSV
+# Función para cargar los datos
 @st.cache
 def cargar_datos():
-    df = pd.read_csv("estadisticas_completas.csv")
-    
-    # Limpiar los nombres de las columnas eliminando espacios innecesarios
-    df.columns = df.columns.str.strip()
-
-    # Imprimir las primeras filas y los nombres de las columnas para verificar
-    st.write("Primeras filas del DataFrame:")
-    st.write(df.head())
-    
-    # Verificar nombres de columnas
-    st.write("Nombres de las columnas:")
-    st.write(df.columns)
-
-    return df
+    return pd.read_csv("estadisticas_completas.csv")
 
 # Cargar los datos
 df = cargar_datos()
 
-# Verificar si 'Minutos' existe
-if "Minutos" not in df.columns:
-    st.error("La columna 'Minutos' no existe en el DataFrame. Verifica el archivo CSV.")
-else:
-    # Procede con el resto del código si la columna existe
-    minutos_minimos = st.sidebar.slider(
-        "Selecciona el mínimo de minutos jugados",
-        min_value=int(df["Minutos"].min()),
-        max_value=int(df["Minutos"].max()),
-        value=int(df["Minutos"].min()),
-        step=1
-    )
-
-    # Resto del código...
-
-
 # Mapeo de nombres de las columnas para que se vean en español
 columnas_espanol = {
+    "MIN": "Minutos",
+    "Posición": "Posición",
     "TS%": "TS%",
     "eFG%": "eFG%",
     "ORB%": "ORB%",
@@ -59,45 +31,17 @@ columnas_espanol = {
     "eDiff": "eDiff",
     "FIC": "FIC",
     "PER": "PER",
-    "MIN": "Minutos",
     "PTS": "PTS",
     "FG%": "FG%",
     "3P%": "3P%",
     "FT%": "FT%",
-    "PF": "PF",
-    "Jugador": "Jugador",
-    "PosiciÃ³n": "Posición",
-    "GP": "GP",
-    "#_y": "#_y",
-    "FGM": "FGM",
-    "FGA": "FGA",
-    "3PM": "3PM",
-    "3PA": "3PA",
-    "FTM": "FTM",
-    "FTA": "FTA",
-    "REB": "REB",
-    "Dbl Dbl": "Dbl Dbl",
-    "Tpl Dbl": "Tpl Dbl",
-    "40 Pts": "40 Pts",
-    "20 Reb": "20 Reb",
-    "20 Ast": "20 Ast",
-    "5 Stl": "5 Stl",
-    "5 Blk": "5 Blk",
-    "High Game": "High Game",
-    "Techs": "Techs",
-    "HOB": "HOB",
-    "Ast/TO": "Ast/TO",
-    "Stl/TO": "Stl/TO",
-    "FT/FGA": "FT/FGA",
-    "W's": "W's",
-    "L's": "L's",
-    "Win %": "Win %",
-    "OWS": "OWS",
-    "DWS": "DWS",
-    "WS": "WS"
+    "PF": "PF"
 }
-# Perfiles por posición (agregar estadísticas adicionales si es necesario)
 
+# Renombrar las columnas
+df = df.rename(columns=columnas_espanol)
+
+# Perfiles por posición
 perfiles_posiciones = {
     "Base (PG)": {
         "Pass-First PG": {
@@ -217,6 +161,7 @@ perfiles_posiciones = {
         }
     }
 }
+
 # Normalización de estadísticas a percentiles por posición
 estadisticas_relevantes = set(
     stat for perfiles in perfiles_posiciones.values() for perfil in perfiles.values() for stat in perfil.keys()
