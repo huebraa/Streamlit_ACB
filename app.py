@@ -317,10 +317,10 @@ def mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_selecciona
     # Coordenadas ajustadas para cada posición
     posiciones_coordenadas = {
         "Base (PG)": (5, 1.2),            # Centro abajo
-        "Escolta (SG)": (1.5, 3),         # Arriba izquierda
-        "Alero (SF)": (8, 3.5),             # Arriba derecha
-        "Ala-Pívot (PF)": (1.5, 4.5),     # Arriba izquierda más alto
-        "Pívot (C)": (8, 5.5)             # Arriba derecha más alto
+        "Escolta (SG)": (2, 3),         # Arriba izquierda
+        "Alero (SF)": (7.5, 3.5),             # Arriba derecha
+        "Ala-Pívot (PF)": (2.5, 4.5),     # Arriba izquierda más alto
+        "Pívot (C)": (6, 5.5)             # Arriba derecha más alto
     }
 
     # Tamaño de fuente y color
