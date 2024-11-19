@@ -55,12 +55,9 @@ perfiles_posiciones = {
 "Ast/TO": 0.15  # Agregada
 },
 "Scorer PG": {
-"PTS": 0.3,
-"3P%": 0.2,
-"AST%": 0.10,
-"STL%": 0.10,
-"TOV%": 0.15,
-"HOB": 0.20  # Agregada
+"PTS": 0.25,
+"ORtg": 0.5,
+"HOB": 0.25  # Agregada
 },
 "Defensive PG": {
 "STL%": 0.2,
