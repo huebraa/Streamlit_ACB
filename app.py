@@ -303,7 +303,7 @@ st.write(df_filtrado[["Jugador", "Posición", "Equipo", "Perfil Principal"] + pe
 
 import matplotlib.pyplot as plt
 
-def mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_seleccionados):
+def mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_seleccionados, max_jugadores):
     """
     Muestra jugadores destacados organizados por posición en una imagen,
     según los perfiles seleccionados para cada posición.
@@ -337,7 +337,7 @@ def mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_selecciona
             jugadores_posicion = (
                 df_filtrado[df_filtrado["Posición"] == posicion]
                 .sort_values(perfil_seleccionado, ascending=False)
-                .head(5)
+                .head(max_jugadores)  # Ajuste dinámico del número de jugadores
             )
 
             # Título de la posición
@@ -354,13 +354,22 @@ def mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_selecciona
             else:
                 ax.text(x, y, "Sin jugadores destacados", ha="center", va="top", fontsize=font_size, color="gray")
 
- 
     # Título general centrado arriba
     ax.text(5, 9, "Jugadores destacados por posición y perfil seleccionado", 
             ha="center", va="center", fontsize=24, color="black", weight='bold')
 
     # Mostrar imagen
     st.pyplot(fig)
+
+# Configurar slider para seleccionar el número de jugadores destacados
+st.sidebar.header("Opciones adicionales")
+max_jugadores = st.sidebar.slider(
+    "Número de jugadores destacados por posición",
+    min_value=1,
+    max_value=10,
+    value=5,
+    step=1
+)
 
 # Selección de perfiles desde la barra lateral (con valores por defecto)
 perfiles_seleccionados = {}
@@ -371,7 +380,7 @@ for posicion, perfiles in perfiles_posiciones.items():
         list(perfiles.keys()),  # Seleccionar el primer perfil por defecto
     )
 
+# Mostrar jugadores por posición según perfiles seleccionados y número máximo
+mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_seleccionados, max_jugadores)
 
-# Mostrar jugadores por posición según perfiles seleccionados
-mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_seleccionados)
 
