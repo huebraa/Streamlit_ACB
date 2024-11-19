@@ -324,7 +324,7 @@ def mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_selecciona
     }
 
     # Tamaño de fuente y color
-    font_size = 12
+    font_size = 44
     azul_color = '#1f77b4'
 
     # Recorrer cada posición seleccionada y mostrar jugadores
