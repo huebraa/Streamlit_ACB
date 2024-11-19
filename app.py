@@ -164,9 +164,15 @@ perfiles_posiciones = {
 }
 
 # Normalización de estadísticas a percentiles por posición
-estadisticas_relevantes = set(
-    stat for perfiles in perfiles_posiciones.values() for perfil in perfiles.values() for stat in perfil.keys()
-)
+for stat in estadisticas_relevantes:
+    if stat in df:  # Asegúrate de que la estadística está en el DataFrame
+        # Obtener el mínimo y máximo valor para esta estadística dentro de cada posición
+        min_stat = df.groupby("Posición")[stat].transform('min')
+        max_stat = df.groupby("Posición")[stat].transform('max')
+
+        # Aplicar la fórmula de normalización para calcular el percentil
+        df[stat] = ((df[stat] - min_stat) / (max_stat - min_stat)) * 100
+
 
 # Calcular percentiles dentro de cada posición
 for stat in estadisticas_relevantes:
