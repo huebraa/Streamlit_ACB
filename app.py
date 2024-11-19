@@ -37,7 +37,8 @@ columnas_espanol = {
     "FG%": "FG%",
     "3P%": "3P%",
     "FT%": "FT%",
-    "PF": "PF"
+    "PF": "PF",
+    "TS%" : "TS%",
 }
 
 # Renombrar las columnas
@@ -48,10 +49,10 @@ perfiles_posiciones = {
 "Pass-First PG": {
 "AST%": 0.30,
 "PPR": 0.30,
-"STL%": 0.10,
+"TS%": 0.10,
 "eFG%": 0.05,
 "ORtg": 0.05,
-"Ast/TO": 0.15  # Agregada
+"Ast/TO": 0.2  # Agregada
 },
 "Scorer PG": {
 "PTS": 0.3,
