@@ -60,8 +60,8 @@ perfiles_posiciones = {
 "HOB": 0.25  # Agregada
 },
 "Defensive PG": {
-"STL%": 0.2,
-"Stl/TO": 0.1,
+"STL%": 0.15,
+"Stl/TO": 0.15,
 "DRtg": 0.5,
 "TRB%": 0.15,
 "BLK%": 0.15  # Agregada
