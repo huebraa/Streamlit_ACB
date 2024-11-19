@@ -47,12 +47,12 @@ df = df.rename(columns=columnas_espanol)
 perfiles_posiciones = {
 "Base (PG)": {
 "Pass-First PG": {
-"AST%": 0.30,
-"PPR": 0.30,
+"AST%": 0.25,
+"PPR": 0.34,
 "TS%": 0.10,
 "eFG%": 0.05,
 "ORtg": 0.05,
-"Ast/TO": 0.2  # Agregada
+"Ast/TO": 0.15  # Agregada
 },
 "Scorer PG": {
 "PTS": 0.3,
