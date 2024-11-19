@@ -301,38 +301,44 @@ st.write("Tabla General de Jugadores con sus puntuaciones por perfil:")
 perfil_columnas = [col for col in df_filtrado.columns if col not in ["Jugador", "Posición", "Minutos", "Equipo", "Perfil Principal"]]
 st.write(df_filtrado[["Jugador", "Posición", "Equipo", "Perfil Principal"] + perfil_columnas])
 
-# Mostrar los 5 mejores jugadores para cada posición y perfil seleccionado
-# Para Base
-perfil_base = st.sidebar.selectbox("Perfil Base (PG)", ["Selecciona un perfil"] + list(perfiles_posiciones["Base (PG)"].keys()))
-if perfil_base != "Selecciona un perfil":
-    df_base = df_filtrado[df_filtrado["Posición"] == "Base (PG)"].sort_values(perfil_base, ascending=False).head(5)
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_base}' en la posición Base (PG):")
-    st.write(df_base[["Jugador", "Posición", perfil_base]])
+def mostrar_jugadores_por_perfil(df_filtrado, perfil_seleccionado, posicion_seleccionada):
+    """
+    Muestra los jugadores destacados en una imagen, organizados por posición,
+    según el perfil seleccionado.
+    """
+    # Filtrar jugadores por posición
+    jugadores_posicion = df_filtrado[df_filtrado["Posición"] == posicion_seleccionada]
+    
+    # Ordenar jugadores por el perfil seleccionado
+    jugadores_posicion = jugadores_posicion.sort_values(perfil_seleccionado, ascending=False).head(5)
 
-# Para Escolta
-perfil_escolta = st.sidebar.selectbox("Perfil Escolta (SG)", ["Selecciona un perfil"] + list(perfiles_posiciones["Escolta (SG)"].keys()))
-if perfil_escolta != "Selecciona un perfil":
-    df_escolta = df_filtrado[df_filtrado["Posición"] == "Escolta (SG)"].sort_values(perfil_escolta, ascending=False).head(5)
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_escolta}' en la posición Escolta (SG):")
-    st.write(df_escolta[["Jugador", "Posición", perfil_escolta]])
+    # Crear figura
+    fig, ax = plt.subplots(figsize=(8, 6))
+    fig.patch.set_facecolor('white')  # Fondo blanco
+    ax.set_facecolor('white')  # Fondo blanco
+    ax.axis('off')  # Quitar ejes
 
-# Para Alero
-perfil_alero = st.sidebar.selectbox("Perfil Alero (SF)", ["Selecciona un perfil"] + list(perfiles_posiciones["Alero (SF)"].keys()))
-if perfil_alero != "Selecciona un perfil":
-    df_alero = df_filtrado[df_filtrado["Posición"] == "Alero (SF)"].sort_values(perfil_alero, ascending=False).head(5)
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_alero}' en la posición Alero (SF):")
-    st.write(df_alero[["Jugador", "Posición", perfil_alero]])
+    # Coordenadas ajustadas para cada jugador (máximo 5)
+    x, y_start = 5, 4  # Coordenadas iniciales para mostrar jugadores
+    spacing = 0.7  # Espaciado entre nombres de jugadores
 
-# Para Ala-Pívot
-perfil_ala_pivot = st.sidebar.selectbox("Perfil Ala-Pívot (PF)", ["Selecciona un perfil"] + list(perfiles_posiciones["Ala-Pívot (PF)"].keys()))
-if perfil_ala_pivot != "Selecciona un perfil":
-    df_ala_pivot = df_filtrado[df_filtrado["Posición"] == "Ala-Pívot (PF)"].sort_values(perfil_ala_pivot, ascending=False).head(5)
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_ala_pivot}' en la posición Ala-Pívot (PF):")
-    st.write(df_ala_pivot[["Jugador", "Posición", perfil_ala_pivot]])
+    # Título con posición y perfil
+    ax.text(x, y_start + 1.5, f"{posicion_seleccionada} - {perfil_seleccionado}",
+            ha="center", va="center", fontsize=16, color="black", weight='bold')
 
-# Para Pívot
-perfil_pivot = st.sidebar.selectbox("Perfil Pívot (C)", ["Selecciona un perfil"] + list(perfiles_posiciones["Pívot (C)"].keys()))
-if perfil_pivot != "Selecciona un perfil":
-    df_pivot = df_filtrado[df_filtrado["Posición"] == "Pívot (C)"].sort_values(perfil_pivot, ascending=False).head(5)
-    st.write(f"Los 5 mejores jugadores para el perfil '{perfil_pivot}' en la posición Pívot (C):")
-    st.write(df_pivot[["Jugador", "Posición", perfil_pivot]])
+    # Listar los jugadores
+    for i, jugador in enumerate(jugadores_posicion.itertuples()):
+        jugador_texto = f"{jugador.Jugador} - {getattr(jugador, perfil_seleccionado):.2f}"
+        ax.text(x, y_start - i * spacing, jugador_texto,
+                ha="center", va="center", fontsize=14, color="#1f77b4", weight='bold')
+
+    # Mostrar la imagen
+    st.pyplot(fig)
+
+# Menús para seleccionar perfiles y posiciones
+st.sidebar.header("Selecciona el perfil por posición")
+for posicion, perfiles in perfiles_posiciones.items():
+    perfil_seleccionado = st.sidebar.selectbox(f"Perfil {posicion}", ["Selecciona un perfil"] + list(perfiles.keys()))
+    
+    if perfil_seleccionado != "Selecciona un perfil":
+        mostrar_jugadores_por_perfil(df_filtrado, perfil_seleccionado, posicion)
