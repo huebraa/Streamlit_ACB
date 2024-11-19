@@ -230,7 +230,7 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
             )
 
             # Colocar la lista en la coordenada correspondiente
-            ax.text(x, y-0.1 lista_jugadores, ha="center", va="center", fontsize=font_size, color=azul_color, weight='bold')
+            ax.text(x, y-0.1, lista_jugadores, ha="center", va="center", fontsize=font_size, color=azul_color, weight='bold')
 
             # Ajustar la coordenada 'y' para la siguiente posición si hay más de un jugador
             y -= 2  # Ajustar para el siguiente jugador si hay más
