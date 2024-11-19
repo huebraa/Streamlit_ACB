@@ -191,7 +191,7 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
     jugadores_equipo = df_filtrado[df_filtrado["Equipo"] == equipo_seleccionado]
     
     # Crear figura y configurarla
-    fig, ax = plt.subplots(figsize=(12, 8))
+    fig, ax = plt.subplots(figsize=(8, 6))
     fig.patch.set_facecolor('white')  # Fondo blanco
     ax.set_facecolor('white')  # Fondo blanco
     ax.axis('off')  # Quitar ejes
