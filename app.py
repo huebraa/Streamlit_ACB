@@ -161,24 +161,32 @@ perfiles_posiciones = {
 }
 }
 
+
 # Definir las estadísticas que deben ser tratadas de manera inversa
 estadisticas_inversas = {"DRtg", "TOV%", "PF"}  # Agrega todas las estadísticas que son inversas
-
 
 # Normalización de estadísticas a percentiles por posición
 estadisticas_relevantes = set(
     stat for perfiles in perfiles_posiciones.values() for perfil in perfiles.values() for stat in perfil.keys()
 )
 
+
+
 # Calcular percentiles dentro de cada posición para las estadísticas relevantes
 for stat in estadisticas_relevantes:
     if stat in df:  # Asegúrate de que la estadística está en el DataFrame
+        
         # Calcular el valor mínimo y máximo de cada estadística dentro de cada posición
         min_stat = df.groupby("Posición")[stat].transform('min')
         max_stat = df.groupby("Posición")[stat].transform('max')
         
-        # Aplicar la fórmula para obtener el percentil de cada jugador
-        df[stat] = ((df[stat] - min_stat) / (max_stat - min_stat)) * 100
+        # Si la estadística es inversa, aplicamos la fórmula de percentil inverso
+        if stat in estadisticas_inversas:
+            df[stat] = ((max_stat - df[stat]) / (max_stat - min_stat)) * 100
+        else:
+            # Si no es inversa, aplicamos la fórmula de percentil normal
+            df[stat] = ((df[stat] - min_stat) / (max_stat - min_stat)) * 100
+
 
 
 # Calcular percentiles dentro de cada posición
