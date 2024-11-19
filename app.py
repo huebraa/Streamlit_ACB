@@ -62,12 +62,12 @@ perfiles_posiciones = {
 "TOV%": 0.15,
 "HOB": 0.20  # Agregada
 },
-"Two-Way PG": {
-"STL%": 0.30,
-"AST%": 0.20,
-"DRtg": 0.25,
+"Defensive PG": {
+"STL%": 0.2,
+"Stl/TO": 0.1,
+"DRtg": 0.5,
 "TRB%": 0.15,
-"Stl/TO": 0.15  # Agregada
+"BLK%": 0.15  # Agregada
 }
 },
 "Escolta (SG)": {
