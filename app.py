@@ -233,7 +233,7 @@ def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
             ax.text(x, y-0.1, lista_jugadores, ha="center", va="center", fontsize=font_size, color=azul_color, weight='bold')
 
             # Ajustar la coordenada 'y' para la siguiente posición si hay más de un jugador
-            y -= 2  # Ajustar para el siguiente jugador si hay más
+            y -= 2,5  # Ajustar para el siguiente jugador si hay más
 
     # Título general
     ax.set_title(f"Jugadores del equipo {equipo_seleccionado} por posición", fontsize=20, color="black", weight='bold')
