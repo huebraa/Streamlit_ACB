@@ -301,44 +301,73 @@ st.write("Tabla General de Jugadores con sus puntuaciones por perfil:")
 perfil_columnas = [col for col in df_filtrado.columns if col not in ["Jugador", "Posición", "Minutos", "Equipo", "Perfil Principal"]]
 st.write(df_filtrado[["Jugador", "Posición", "Equipo", "Perfil Principal"] + perfil_columnas])
 
-def mostrar_jugadores_por_perfil(df_filtrado, perfil_seleccionado, posicion_seleccionada):
-    """
-    Muestra los jugadores destacados en una imagen, organizados por posición,
-    según el perfil seleccionado.
-    """
-    # Filtrar jugadores por posición
-    jugadores_posicion = df_filtrado[df_filtrado["Posición"] == posicion_seleccionada]
-    
-    # Ordenar jugadores por el perfil seleccionado
-    jugadores_posicion = jugadores_posicion.sort_values(perfil_seleccionado, ascending=False).head(5)
+import matplotlib.pyplot as plt
 
+def mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_seleccionados):
+    """
+    Muestra jugadores destacados organizados por posición en una imagen,
+    según los perfiles seleccionados para cada posición.
+    """
     # Crear figura
-    fig, ax = plt.subplots(figsize=(8, 6))
+    fig, ax = plt.subplots(figsize=(8, 8))
     fig.patch.set_facecolor('white')  # Fondo blanco
     ax.set_facecolor('white')  # Fondo blanco
     ax.axis('off')  # Quitar ejes
 
-    # Coordenadas ajustadas para cada jugador (máximo 5)
-    x, y_start = 5, 4  # Coordenadas iniciales para mostrar jugadores
-    spacing = 0.7  # Espaciado entre nombres de jugadores
+    # Coordenadas ajustadas para cada posición
+    posiciones_coordenadas = {
+        "Base (PG)": (5, 1.2),            # Centro abajo
+        "Escolta (SG)": (1.5, 4),         # Arriba izquierda
+        "Alero (SF)": (8, 4),             # Arriba derecha
+        "Ala-Pívot (PF)": (1.5, 5.5),     # Arriba izquierda más alto
+        "Pívot (C)": (8, 5.5)             # Arriba derecha más alto
+    }
 
-    # Título con posición y perfil
-    ax.text(x, y_start + 1.5, f"{posicion_seleccionada} - {perfil_seleccionado}",
-            ha="center", va="center", fontsize=16, color="black", weight='bold')
+    # Tamaño de fuente y color
+    font_size = 12
+    azul_color = '#1f77b4'
 
-    # Listar los jugadores
-    for i, jugador in enumerate(jugadores_posicion.itertuples()):
-        jugador_texto = f"{jugador.Jugador} - {getattr(jugador, perfil_seleccionado):.2f}"
-        ax.text(x, y_start - i * spacing, jugador_texto,
-                ha="center", va="center", fontsize=14, color="#1f77b4", weight='bold')
+    # Recorrer cada posición seleccionada y mostrar jugadores
+    for posicion, (x, y) in posiciones_coordenadas.items():
+        perfil_seleccionado = perfiles_seleccionados.get(posicion)
+        
+        # Si se ha seleccionado un perfil para esta posición
+        if perfil_seleccionado and perfil_seleccionado != "Selecciona un perfil":
+            # Filtrar y ordenar jugadores por el perfil seleccionado
+            jugadores_posicion = (
+                df_filtrado[df_filtrado["Posición"] == posicion]
+                .sort_values(perfil_seleccionado, ascending=False)
+                .head(5)
+            )
 
-    # Mostrar la imagen
+            # Título de la posición
+            ax.text(x, y + 0.5, f"{posicion} - {perfil_seleccionado}", 
+                    ha="center", va="center", fontsize=14, color="black", weight='bold')
+
+            # Lista de jugadores
+            if not jugadores_posicion.empty:
+                lista_jugadores = "\n".join(
+                    [f"{jugador['Jugador']} ({jugador[perfil_seleccionado]:.2f})"
+                     for idx, jugador in jugadores_posicion.iterrows()]
+                )
+                ax.text(x, y, lista_jugadores, ha="center", va="top", fontsize=font_size, color=azul_color)
+            else:
+                ax.text(x, y, "Sin jugadores destacados", ha="center", va="top", fontsize=font_size, color="gray")
+
+    # Título general
+    ax.set_title("Jugadores destacados por posición y perfil seleccionado", 
+                 fontsize=16, color="black", weight='bold')
+
+    # Mostrar imagen
     st.pyplot(fig)
 
-# Menús para seleccionar perfiles y posiciones
-st.sidebar.header("Selecciona el perfil por posición")
+# Selección de perfiles desde la barra lateral
+perfiles_seleccionados = {}
+st.sidebar.header("Selecciona un perfil para cada posición")
 for posicion, perfiles in perfiles_posiciones.items():
-    perfil_seleccionado = st.sidebar.selectbox(f"Perfil {posicion}", ["Selecciona un perfil"] + list(perfiles.keys()))
-    
-    if perfil_seleccionado != "Selecciona un perfil":
-        mostrar_jugadores_por_perfil(df_filtrado, perfil_seleccionado, posicion)
+    perfiles_seleccionados[posicion] = st.sidebar.selectbox(f"Perfil {posicion}", 
+                                                             ["Selecciona un perfil"] + list(perfiles.keys()))
+
+# Mostrar jugadores por posición según perfiles seleccionados
+mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_seleccionados)
+
