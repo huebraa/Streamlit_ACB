@@ -342,7 +342,7 @@ def mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_selecciona
 
             # Título de la posición
             ax.text(x, y + 0.5, f"{posicion} - {perfil_seleccionado}", 
-                    ha="center", va="center", fontsize=14, color="black", weight='bold')
+                    ha="center", va="center", fontsize=44, color="black", weight='bold')
 
             # Lista de jugadores
             if not jugadores_posicion.empty:
