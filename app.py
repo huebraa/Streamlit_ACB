@@ -48,7 +48,7 @@ perfiles_posiciones = {
 "Base (PG)": {
 "Pass-First PG": {
 "AST%": 0.25,
-"PPR": 0.34,
+"PPR": 0.4,
 "TS%": 0.10,
 "eFG%": 0.05,
 "ORtg": 0.05,
