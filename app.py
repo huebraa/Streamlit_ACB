@@ -217,6 +217,7 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
+
 def mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_seleccionados, max_jugadores, url_imagen):
     """
     Muestra jugadores destacados organizados por posición en una imagen,
@@ -226,23 +227,22 @@ def mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_selecciona
     img_fondo = mpimg.imread(url_imagen)
 
     # Crear figura y ejes con tamaño ajustado para la imagen de fondo
-    fig, ax = plt.subplots(figsize=(img_fondo.shape[1] / 100, img_fondo.shape[0] / 100))  # Ajustar tamaño a la imagen
+    fig, ax = plt.subplots(figsize=(img_fondo.shape[1] / 100, img_fondo.shape[0] / 100))  # Ajuste el tamaño a la imagen
     ax.imshow(img_fondo)  # Mostrar la imagen de fondo
     ax.axis('off')  # Quitar ejes
 
-    # Coordenadas ajustadas para cada posición
-    # Las coordenadas deben adaptarse a las dimensiones de la imagen
-    posiciones_coordenadas = {
-        "Base (PG)": (0.1, 0.8),  # Estas coordenadas deben adaptarse al tamaño de la imagen
-        "Escolta (SG)": (0.2, 0.6),
-        "Alero (SF)": (0.7, 0.6),
-        "Ala-Pívot (PF)": (0.2, 0.4),
-        "Pívot (C)": (0.7, 0.3)
-    }
-
-    # Tamaño de fuente y color
-    font_size = 14  # Ajusta el tamaño de fuente según la escala de la imagen
+    # Tamaño de fuente ajustable según la resolución de la imagen
+    font_size = 20  # Puedes aumentar o reducir según la imagen
     azul_color = '#1f77b4'
+
+    # Coordenadas ajustadas para cada posición (aquí hay que probar varios valores)
+    posiciones_coordenadas = {
+        "Base (PG)": (0.1, 0.85),  # Estas coordenadas deben adaptarse a la imagen
+        "Escolta (SG)": (0.2, 0.7),
+        "Alero (SF)": (0.7, 0.65),
+        "Ala-Pívot (PF)": (0.2, 0.5),
+        "Pívot (C)": (0.75, 0.4)
+    }
 
     # Recorrer cada posición seleccionada y mostrar jugadores
     for posicion, (x, y) in posiciones_coordenadas.items():
@@ -279,6 +279,7 @@ def mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_selecciona
 
     # Mostrar imagen
     plt.show()
+
 
 
 
