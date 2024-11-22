@@ -208,6 +208,7 @@ def calcular_puntuacion(row, perfil):
                 st.warning(f"Advertencia: No se pudo convertir el valor de {stat} para el jugador {row.get('Jugador', 'Desconocido')}. Valor: {row[stat]}")
     return puntuacion
 
+import matplotlib.image as mpimg
 
 
 
