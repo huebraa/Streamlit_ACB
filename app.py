@@ -404,26 +404,6 @@ for posicion, perfiles in perfiles_posiciones.items():
         f"Perfil {posicion}",
         list(perfiles.keys()),  # Seleccionar el primer perfil por defecto
     )
-# Validar columnas esperadas al cargar datos
-expected_columns = set(columnas_espanol.keys())
-if not expected_columns.issubset(df.columns):
-    st.error(f"Faltan columnas esperadas: {expected_columns - set(df.columns)}")
-
-# Revisar normalización de estadísticas
-for stat in estadisticas_relevantes:
-    if stat in df:
-        min_stat = df.groupby("Posición")[stat].transform('min')
-        max_stat = df.groupby("Posición")[stat].transform('max')
-        if min_stat.equals(max_stat):  # Manejar valores constantes
-            df[stat] = 50  # Percentil intermedio si los valores son iguales
-        elif stat in estadisticas_inversas:
-            df[stat] = ((max_stat - df[stat]) / (max_stat - min_stat)) * 100
-        else:
-            df[stat] = ((df[stat] - min_stat) / (max_stat - min_stat)) * 100
-
-# Validar filtrado y selecciones
-if equipo_seleccionado != "Todos" and equipo_seleccionado not in df["Equipo"].unique():
-    st.error(f"El equipo {equipo_seleccionado} no está en los datos.")
 
 
 
