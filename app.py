@@ -333,10 +333,15 @@ def mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_selecciona
     Muestra jugadores destacados organizados por posición en una imagen,
     según los perfiles seleccionados para cada posición.
     """
+    # URL de la imagen de fondo en GitHub (esto es un ejemplo)
+    url_imagen = 'https://github.com/huebraa/Streamlit_ACB/blob/main/pista-acb.png'
+
+    # Cargar la imagen de fondo
+    img_fondo = mpimg.imread(url_imagen)
+    
     # Crear figura
     fig, ax = plt.subplots(figsize=(8, 8))
-    fig.patch.set_facecolor('white')  # Fondo blanco
-    ax.set_facecolor('white')  # Fondo blanco
+    ax.imshow(img_fondo, aspect='auto', extent=[0, 10, 0, 10])  # Ajustar la imagen al tamaño de la gráfica
     ax.axis('off')  # Quitar ejes
 
     # Coordenadas ajustadas para cada posición
