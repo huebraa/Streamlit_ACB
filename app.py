@@ -338,7 +338,7 @@ def mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_selecciona
     según los perfiles seleccionados para cada posición.
     """
     # URL de la imagen de fondo en GitHub (esto es un ejemplo)
-    url_imagen = 'https://github.com/huebraa/Streamlit_ACB/blob/main/pista-acb.png'
+    url_imagen = 'pista-acb.png'
 
     # Cargar la imagen de fondo
     img_fondo = mpimg.imread(url_imagen)
