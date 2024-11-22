@@ -211,61 +211,68 @@ def calcular_puntuacion(row, perfil):
 
 
 
-def mostrar_jugadores_por_posicion(df_filtrado, equipo_seleccionado):
-    # Filtrar jugadores del equipo seleccionado
-    jugadores_equipo = df_filtrado[df_filtrado["Equipo"] == equipo_seleccionado]
+def mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_seleccionados, max_jugadores):
+    """
+    Muestra jugadores destacados organizados por posición en una imagen,
+    según los perfiles seleccionados para cada posición.
+    """
+    # URL de la imagen de fondo en GitHub (esto es un ejemplo)
+    url_imagen = 'https://github.com/huebraa/Streamlit_ACB/edit/main/app.py#L9C23:~:text=estadisticas_acb_con_posicion.csv-,pista,-%2Dacb.png'
+
+    # Cargar la imagen de fondo
+    img_fondo = mpimg.imread(url_imagen)
     
-    # Crear figura y configurarla
-    fig, ax = plt.subplots(figsize=(8, 6))
-    fig.patch.set_facecolor('white')  # Fondo blanco
-    ax.set_facecolor('white')  # Fondo blanco
+    # Crear figura
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.imshow(img_fondo, aspect='auto', extent=[0, 10, 0, 10])  # Ajustar la imagen al tamaño de la gráfica
     ax.axis('off')  # Quitar ejes
 
-    # Coordenadas ajustadas para cada posición en una lista simple
-    posiciones = {
+    # Coordenadas ajustadas para cada posición
+    posiciones_coordenadas = {
         "Base (PG)": (5, 1.2),            # Centro abajo
-        "Escolta (SG)": (1.5, 4),         # Arriba izquierda
-        "Alero (SF)": (8, 4),             # Arriba derecha
-        "Ala-Pívot (PF)": (1.5, 5.5),     # Arriba izquierda más alto
-        "Pívot (C)": (8, 5.5)             # Arriba derecha más alto
+        "Escolta (SG)": (2, 3),         # Arriba izquierda
+        "Alero (SF)": (7.5, 3.5),             # Arriba derecha
+        "Ala-Pívot (PF)": (2.5, 4.5),     # Arriba izquierda más alto
+        "Pívot (C)": (6, 5.5)             # Arriba derecha más alto
     }
 
-    # Tamaño de fuente ajustado a 44
+    # Tamaño de fuente y color
     font_size = 44
-    azul_color = '#1f77b4'  # Tono azul
+    azul_color = '#1f77b4'
 
-    # Recorrer cada posición y mostrar los jugadores
-    for posicion, (x, y) in posiciones.items():
-        # Título de la posición
-        ax.text(x, y + 0.2, posicion, ha="center", va="center", fontsize=font_size, color="black", weight='bold')
-
-        # Obtener los jugadores de esta posición
-        jugadores_posicion = jugadores_equipo[jugadores_equipo["Posición"] == posicion]
-        if not jugadores_posicion.empty:
-            # Obtener el perfil con mayor puntuación para cada jugador
-            jugadores_posicion["Perfil Principal"] = jugadores_posicion.apply(
-                lambda row: obtener_perfil_maximo(row, perfiles_posiciones[row["Posición"]].keys()),
-                axis=1
-            )
-            
-            # Mostrar los jugadores en formato de lista minimalista
-            lista_jugadores = "\n".join(
-                [f"{jugador['Jugador']} - {jugador['Perfil Principal']} - #{jugador.get('Ranking Liga', 'N/A')}" 
-                 for idx, jugador in jugadores_posicion.iterrows()]
+    # Recorrer cada posición seleccionada y mostrar jugadores
+    for posicion, (x, y) in posiciones_coordenadas.items():
+        perfil_seleccionado = perfiles_seleccionados.get(posicion)
+        
+        # Si se ha seleccionado un perfil para esta posición
+        if perfil_seleccionado and perfil_seleccionado != "Selecciona un perfil":
+            # Filtrar y ordenar jugadores por el perfil seleccionado
+            jugadores_posicion = (
+                df_filtrado[df_filtrado["Posición"] == posicion]
+                .sort_values(perfil_seleccionado, ascending=False)
+                .head(max_jugadores)  # Ajuste dinámico del número de jugadores
             )
 
-            # Colocar la lista en la coordenada correspondiente
-            ax.text(x, y-0.1, lista_jugadores, ha="center", va="center", fontsize=font_size, color=azul_color, weight='bold')
+            # Título de la posición
+            ax.text(x, y + 0.1, f"{posicion} - {perfil_seleccionado}", 
+                    ha="center", va="center", fontsize=44, color="black", weight='bold')
 
-            # Ajustar la coordenada 'y' para la siguiente posición si hay más de un jugador
-            y -= 2  # Ajustar para el siguiente jugador si hay más
+            # Lista de jugadores
+            if not jugadores_posicion.empty:
+                lista_jugadores = "\n".join(
+                    [f"{jugador['Jugador']} ({jugador[perfil_seleccionado]:.2f})"
+                     for idx, jugador in jugadores_posicion.iterrows()]
+                )
+                ax.text(x, y, lista_jugadores, ha="center", va="top", fontsize=font_size, color=azul_color)
+            else:
+                ax.text(x, y, "Sin jugadores destacados", ha="center", va="top", fontsize=font_size, color="gray")
 
-    # Título general
-    ax.set_title(f"Jugadores del equipo {equipo_seleccionado} por posición", fontsize=20, color="black", weight='bold')
+    # Título general centrado arriba
+    ax.text(5, 9, "Jugadores destacados por posición y perfil seleccionado", 
+            ha="center", va="center", fontsize=24, color="black", weight='bold')
 
-    # Mostrar
+    # Mostrar imagen
     st.pyplot(fig)
-
 
 
 
