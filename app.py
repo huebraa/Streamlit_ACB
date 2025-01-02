@@ -1,5 +1,3 @@
-
-
 import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -411,31 +409,3 @@ for posicion, perfiles in perfiles_posiciones.items():
 
 # Mostrar jugadores por posición según perfiles seleccionados y número máximo
 mostrar_jugadores_por_posiciones_y_perfiles(df_filtrado, perfiles_seleccionados, max_jugadores)
-
-# Función para mostrar el gráfico interactivo de dispersión
-def mostrar_scatter_plot_interactivo(df_filtrado):
-    # Obtener las columnas numéricas del DataFrame para la selección
-    columnas_numericas = df_filtrado.select_dtypes(include=["float64", "int64"]).columns.tolist()
-
-    # Mostrar selectbox para que el usuario elija las estadísticas
-    stat_x = st.sidebar.selectbox("Selecciona la estadística para el eje X", columnas_numericas)
-    stat_y = st.sidebar.selectbox("Selecciona la estadística para el eje Y", columnas_numericas)
-
-    # Crear el gráfico de dispersión
-    fig, ax = plt.subplots(figsize=(8, 6))
-
-    # Graficar los puntos
-    ax.scatter(df_filtrado[stat_x], df_filtrado[stat_y], color='#1f77b4', alpha=0.7)
-
-    # Etiquetas y título
-    ax.set_xlabel(f"{columnas_espanol.get(stat_x, stat_x)}", fontsize=14)
-    ax.set_ylabel(f"{columnas_espanol.get(stat_y, stat_y)}", fontsize=14)
-    ax.set_title(f"Scatter Plot: {columnas_espanol.get(stat_x, stat_x)} vs {columnas_espanol.get(stat_y, stat_y)}", fontsize=16)
-
-    # Mostrar el gráfico
-    st.pyplot(fig)
-
-# Mostrar scatter plot interactivo en la interfaz de Streamlit
-st.sidebar.header("Gráfico de Dispersión Interactivo")
-if st.sidebar.button("Mostrar Scatter Plot"):
-    mostrar_scatter_plot_interactivo(df_filtrado)
